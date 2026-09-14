@@ -1,5 +1,13 @@
 # CHANGELOG — bb-plugin-dsv
 
+## Docs — 2026-09-14
+
+- `README.md`: description, features, keys, requirements, install, develop, limits, and credits.
+- `screenshot.png`: only the dsv plugin, on the synthetic 100,000-row sample file (2,228 × 1,544 px, 554,035 bytes). The user reviewed it before the commit.
+- The capture used a clip of the plugin area, never the full window. Checks inside the clip: 0 outside page texts (75 compared), 0 thread IDs, 0 of 3,430 points not in the plugin. A 5 px strip of bb's panel resize handle was cut from the left edge.
+- The install commands were run: `bb plugin build` on a fresh clone with no `npm install`, and `bb plugin install <path> --yes` on this repo. A clone over HTTPS was not tested.
+- Script: `thr_eksuvt3xcn/readme-shot.mjs` in bb thread storage, not in the repo.
+
 ## 0.7.1 — 2026-09-14
 
 Request: "add sort icon in "Sort" button". Branch `feat/sort-icon`.

@@ -73,3 +73,5 @@ Chunk size: one plan chunk. 3 chunks. Stop if a chunk is red.
       A1 49 of 49 · `tsc` exit 0 · build has the v1.6 code · `bb plugin install <path> --yes` → `dsv@0.7.0 running` from this clone
 - [x] 0.7.1 Sort button: Font Awesome Free `sort` icon (branch `feat/sort-icon`) → `tsc` exit 0 · A1 49 of 49 · `dsv@0.7.1 running`
       svg 1 of 1 · icon 14 × 14 px, as on Filter · text "Sort" and title kept
+- [x] README.md + screenshot.png (branch `feat/sort-icon`) → P1 0 · P2 0 · P3 0 of 3,430 points · P4 reviewed by the user · D1 image link → committed file
+      fresh clone: `bb plugin build` works with no `npm install` · the header reason note stays (user's choice)
