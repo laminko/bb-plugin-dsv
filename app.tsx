@@ -284,7 +284,7 @@ function Grid({ table, note }: { table: Table; note: string }) {
   const [sort, setSort] = useState<{ col: number; dir: Dir } | null>(null);
   const hits = useMemo(() => {
     const found = query(table, search, scope, filters);
-    return sort ? sortHits(table, found, sort.col, sort.dir) : found;
+    return sort ? sortHits(table, found, [sort]) : found;
   }, [table, search, scope, filters, sort]);
   // A sort button click: ascending, then descending, then the file order.
   const cycle = (c: number) => setSort(sort?.col !== c ? { col: c, dir: "asc" } : sort.dir === "asc" ? { col: c, dir: "desc" } : null);

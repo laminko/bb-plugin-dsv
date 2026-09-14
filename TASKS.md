@@ -53,3 +53,13 @@ Chunk size: one plan chunk. 2 chunks. Stop if chunk 1 is red.
 - [x] 1. `logic.ts` (`sortHits()`, cached ranks) + 5 tests → A1 46 of 46 pass · T1 `tsc` exit 0 (Node v24.18.0, 2026-09-14)
 - [ ] 2. `app.tsx` (sort button, status bar, `aria-sort`, go to row by `indexOf`) → O1–O5, G1, A2–A4 · `dsv@0.6.0 running`
       code done: `tsc` exit 0 · A1 46 of 46 · `dsv@0.6.0 running` · dist has `data-sort` · O1–O5, G1, A2–A4 not measured (handoff: `thr_eksuvt3xcn/handoff-dsv-sort.md`)
+
+## v1.6 (0.7.0)
+
+Plan: "Proposal v1.6" and "Decisions v1.6" (approved `go`, 2026-09-14, defaults 1–3). Thread: thr_eksuvt3xcn. Branch `feat/sort`.
+Chunk size: one plan chunk. 3 chunks. Stop if a chunk is red.
+
+- [x] 1. `logic.ts` (`SortKey`, `sortHits()` takes a list of levels) + 3 tests; the 5 v1.5 sort tests use the list form → A1 49 of 49 pass · T1 `tsc` exit 0 (Node v24.18.0, 2026-09-14)
+      `app.tsx` gets a one-line change (`[sort]`) so that T1 compiles. v1.5 behaviour is unchanged.
+- [ ] 2. `app.tsx` (levels state, shift+click, level numbers, Sort panel, status bar) → T1 · `bb plugin reload dsv` · `dsv@0.7.0 running`
+- [ ] 3. Live checks M1–M7, O1–O5, G1, A2–A4 (headless Chrome, port 9333) → "Result v1.6" in the plan

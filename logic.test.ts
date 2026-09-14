@@ -1,4 +1,4 @@
-// A1: node --test logic.test.ts  →  46 of 46 must pass.
+// A1: node --test logic.test.ts  →  49 of 49 must pass.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -255,17 +255,19 @@ test("encoding: bad UTF-8 bytes are counted", () => {
 
 // v1.5 — sort by column
 const all = (t: Table) => t.rows.map((_, i) => i);
-const sorted = (t: Table, c: number) => [sortHits(t, all(t), c, "asc"), sortHits(t, all(t), c, "desc")];
+const sorted = (t: Table, col: number) =>
+  [sortHits(t, all(t), [{ col, dir: "asc" }]), sortHits(t, all(t), [{ col, dir: "desc" }])];
 const values = (t: Table, c: number, hits: number[]) => hits.map((i) => t.rows[i][c]);
-const oneCol = (dtype: Dtype, v: string[]): Table =>
-  ({ names: ["v"], rows: v.map((x) => [x]), dtypes: [dtype], reads: [{ comma: false, order: "ymd" }] });
+const typed = (dtypes: Dtype[], rows: string[][]): Table =>
+  ({ names: dtypes.map((_, c) => `c${c}`), rows, dtypes, reads: dtypes.map(() => ({ comma: false, order: "ymd" })) });
+const oneCol = (dtype: Dtype, v: string[]) => typed([dtype], v.map((x) => [x]));
 test("sort: numbers with a decimal comma, both directions", () => {
   const t = toTable(parse("id;price\n1;1,5\n2;10\n3;-3,25\n4;2", ";"), true);
   assert.deepEqual([t.dtypes[1], t.reads[1].comma], ["float", true]);
   const [asc, desc] = sorted(t, 1);
   assert.deepEqual(values(t, 1, asc), ["-3,25", "1,5", "2", "10"]);
   assert.deepEqual(values(t, 1, desc), ["10", "2", "1,5", "-3,25"]);
-  assert.deepEqual(sortHits(t, [0, 1, 3], 1, "desc"), [1, 3, 0]);
+  assert.deepEqual(sortHits(t, [0, 1, 3], [{ col: 1, dir: "desc" }]), [1, 3, 0]);
 });
 test("sort: DMY dates", () => {
   const t = toTable(parse("d\n13/01/2024\n05/02/2023\n01/12/2024", ","), true);
@@ -291,4 +293,26 @@ test("sort: equal values keep the file order, bool false first, ranks cached", (
   assert.ok(t.ranks?.[0]);
   assert.deepEqual(sorted(oneCol("string", ["oslo", "Lima", "Oslo"]), 0), [[1, 0, 2], [0, 2, 1]]);
   assert.deepEqual(sorted(oneCol("bool", ["true", "FALSE", "True", "false"]), 0), [[1, 3, 0, 2], [0, 2, 1, 3]]);
+});
+
+// v1.6 — sort by several columns
+test("sort: two levels, ascending then descending", () => {
+  const t = toTable(parse("cat,price\nb,1.5\na,2\nb,3\na,10\na,2", ","), true);
+  assert.deepEqual(t.dtypes, ["string", "float"]);
+  assert.deepEqual(sortHits(t, all(t), [{ col: 0, dir: "asc" }, { col: 1, dir: "desc" }]), [3, 1, 4, 2, 0]);
+  assert.deepEqual(sortHits(t, all(t), [{ col: 0, dir: "desc" }, { col: 1, dir: "asc" }]), [0, 2, 1, 4, 3]);
+});
+test("sort: empty and unreadable cells last inside a level", () => {
+  const t = typed(["string", "int"], [["a", "3"], ["a", ""], ["b", "1"], ["a", "x"], ["a", "1"], ["b", ""], ["", "2"], ["", "1"]]);
+  assert.deepEqual(sortHits(t, all(t), [{ col: 0, dir: "asc" }, { col: 1, dir: "asc" }]), [4, 0, 1, 3, 2, 5, 7, 6]);
+  assert.deepEqual(sortHits(t, all(t), [{ col: 0, dir: "desc" }, { col: 1, dir: "desc" }]), [2, 5, 0, 4, 1, 3, 6, 7]);
+});
+test("sort: three levels, and an empty list gives the file order", () => {
+  const t = toTable(parse("country,city,total\nTH,Bangkok,5\nNO,Oslo,3\nTH,Bangkok,2\nNO,Bergen,7\nTH,Chiang Mai,1\nNO,Oslo,9\nTH,Bangkok,5", ","), true);
+  assert.deepEqual(t.dtypes, ["string", "string", "int"]);
+  const keys = [{ col: 0, dir: "asc" }, { col: 1, dir: "desc" }, { col: 2, dir: "asc" }] as const;
+  assert.deepEqual(sortHits(t, all(t), [...keys]), [1, 5, 3, 4, 2, 0, 6]);
+  assert.deepEqual(sortHits(t, all(t), [keys[2], keys[0]]), [4, 2, 1, 0, 6, 3, 5]);
+  assert.deepEqual(sortHits(t, all(t), []), [0, 1, 2, 3, 4, 5, 6]);
+  assert.deepEqual(sortHits(t, [3, 1, 2], []), [3, 1, 2]);
 });

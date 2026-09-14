@@ -412,14 +412,26 @@ function rank(t: Table, c: number): Int32Array {
   return (ranks[c] = out);
 }
 
+/** One sort level: a column and its direction. */
+export interface SortKey {
+  col: number;
+  dir: Dir;
+}
+
 /**
- * `hits` in the order of column `c`, as a new array. Equal values keep their
- * order. Empty and unreadable cells stay last in both directions.
+ * `hits` sorted by the levels in `keys`, as a new array. Level 2 orders only
+ * rows equal in level 1, and so on. Rows equal in all levels keep their order.
+ * In each level, empty and unreadable cells stay last in both directions.
  */
-export function sortHits(t: Table, hits: number[], c: number, dir: Dir): number[] {
-  const r = rank(t, c);
-  const sign = dir === "asc" ? 1 : -1;
-  return hits.slice().sort((a, b) => (r[a] === LAST || r[b] === LAST ? r[a] - r[b] : sign * (r[a] - r[b])));
+export function sortHits(t: Table, hits: number[], keys: SortKey[]): number[] {
+  const levels = keys.map((k) => [rank(t, k.col), k.dir === "asc" ? 1 : -1] as const);
+  return hits.slice().sort((a, b) => {
+    for (const [r, sign] of levels) {
+      const d = r[a] === LAST || r[b] === LAST ? r[a] - r[b] : sign * (r[a] - r[b]);
+      if (d) return d;
+    }
+    return 0;
+  });
 }
 
 /** Index of the last value ≤ x in an ascending array, or -1. */
