@@ -61,5 +61,6 @@ Chunk size: one plan chunk. 3 chunks. Stop if a chunk is red.
 
 - [x] 1. `logic.ts` (`SortKey`, `sortHits()` takes a list of levels) + 3 tests; the 5 v1.5 sort tests use the list form → A1 49 of 49 pass · T1 `tsc` exit 0 (Node v24.18.0, 2026-09-14)
       `app.tsx` gets a one-line change (`[sort]`) so that T1 compiles. v1.5 behaviour is unchanged.
-- [ ] 2. `app.tsx` (levels state, shift+click, level numbers, Sort panel, status bar) → T1 · `bb plugin reload dsv` · `dsv@0.7.0 running`
+- [x] 2. `app.tsx` (levels state, shift+click, level numbers, Sort panel, status bar) → T1 · `bb plugin reload dsv` · `dsv@0.7.0 running`
+      T1 `tsc` exit 0 · A1 49 of 49 · `dsv@0.7.0 running` · `dist/app.js` has "Sort by several columns" (1 match)
 - [ ] 3. Live checks M1–M7, O1–O5, G1, A2–A4 (headless Chrome, port 9333) → "Result v1.6" in the plan

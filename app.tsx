@@ -1,4 +1,4 @@
-// Opens delimited text (csv, tsv, …) as a typed grid: search, AND filters, sort,
+// Opens delimited text (csv, tsv, …) as a typed grid: search, AND filters, multi-column sort,
 // column picker, go to row. "Code" shows the raw text in bb's source viewer. Pure logic is in logic.ts.
 import {
   definePluginApp,
@@ -16,7 +16,7 @@ import {
 import {
   arity, bounds, cells, decode, DELIMITERS, detectDelimiter, detectHeader, ENCODINGS, family, floorIndex, FORMAT, OPS, parse, query,
   recordDelimiter, sortHits, step, toTable, toTsv,
-  type Dir, type Filter, type Format, type Op, type Sel, type Table,
+  type Dir, type Filter, type Format, type Op, type Sel, type SortKey, type Table,
 } from "./logic.ts";
 
 export default definePluginApp((app) => {
@@ -271,6 +271,7 @@ function DsvOpener({ path, source }: PluginFileOpenerProps) {
   );
 }
 
+const arrow = (d: Dir) => (d === "asc" ? "↑" : "↓");
 const blank = (t: Table, col: number): Filter => ({ col, op: OPS[family(t.dtypes[col] ?? "string")][0][0], a: "", b: "" });
 
 function Grid({ table, note }: { table: Table; note: string }) {
@@ -281,13 +282,19 @@ function Grid({ table, note }: { table: Table; note: string }) {
   const [jump, setJump] = useState<number | null>(null); // the row number typed in "Go to row"
   const [custom, setCustom] = useState<Record<number, number>>({}); // column → width from a drag
   const [copyKey, setCopyKeyState] = useState(() => (localStorage.getItem(COPY_KEY) === "names" ? "names" : "data"));
-  const [sort, setSort] = useState<{ col: number; dir: Dir } | null>(null);
+  const [sorts, setSorts] = useState<SortKey[]>([]); // sort levels, level 1 first
   const hits = useMemo(() => {
     const found = query(table, search, scope, filters);
-    return sort ? sortHits(table, found, [sort]) : found;
-  }, [table, search, scope, filters, sort]);
-  // A sort button click: ascending, then descending, then the file order.
-  const cycle = (c: number) => setSort(sort?.col !== c ? { col: c, dir: "asc" } : sort.dir === "asc" ? { col: c, dir: "desc" } : null);
+    return sorts.length ? sortHits(table, found, sorts) : found;
+  }, [table, search, scope, filters, sorts]);
+  // A sort button click steps its column: ascending, descending, off. A plain click
+  // makes the column the only level. Shift+click adds the column as the last level,
+  // or steps its level in place.
+  const sortBy = (c: number, add: boolean) => {
+    const i = sorts.findIndex((k) => k.col === c);
+    const next: SortKey[] = i < 0 ? [{ col: c, dir: "asc" }] : sorts[i].dir === "asc" ? [{ col: c, dir: "desc" }] : [];
+    setSorts(!add ? next : i < 0 ? [...sorts, ...next] : [...sorts.slice(0, i), ...next, ...sorts.slice(i + 1)]);
+  };
   const cols = table.names.map((_, c) => c).filter((c) => !hidden.has(c));
   const widths = useMemo(
     () =>
@@ -514,6 +521,7 @@ function Grid({ table, note }: { table: Table; note: string }) {
           <Icon name="filter" />
           Filter
         </button>
+        <SortPanel table={table} sorts={sorts} setSorts={setSorts} />
         <Columns table={table} hidden={hidden} setHidden={setHidden} />
         <Popover name="Copy" title="Copy the selection" label={<><Icon name="clipboard" />Copy</>}>
           <div className="flex flex-col gap-1">
@@ -586,36 +594,41 @@ function Grid({ table, note }: { table: Table; note: string }) {
             >
               #
             </div>
-            {cols.map((c, ci) => (
-              <div
-                key={c}
-                role="columnheader"
-                title={`${table.names[c]} (${table.dtypes[c]})`}
-                aria-sort={sort?.col !== c ? undefined : sort.dir === "asc" ? "ascending" : "descending"}
-                className={`${cell} relative flex items-center gap-1 ${numeric(c) ? "justify-end" : ""} ${ci >= sLeft && ci <= sRight ? "text-primary" : ""}`}
-                style={{ width: w(c) }}
-              >
-                <span className="truncate">{table.names[c]}</span>
-                <span className="rounded bg-background px-1 text-[10px] leading-4 text-muted-foreground">{table.dtypes[c]}</span>
-                <button
-                  type="button"
-                  data-sort=""
-                  aria-label={`Sort by ${table.names[c]}`}
-                  title={`Sort: ${sort?.col !== c ? "ascending" : sort.dir === "asc" ? "descending" : "file order"}`}
-                  className={`mr-1 shrink-0 text-xs ${sort?.col === c ? "text-primary" : "text-muted-foreground/50 hover:text-foreground"}`}
-                  onClick={() => cycle(c)}
-                >
-                  {sort?.col !== c ? "↕" : sort.dir === "asc" ? "↑" : "↓"}
-                </button>
+            {cols.map((c, ci) => {
+              const level = sorts.findIndex((k) => k.col === c);
+              const dir = level < 0 ? null : sorts[level].dir;
+              return (
                 <div
-                  data-resize=""
-                  title="Drag to resize. Double-click for the automatic width."
-                  className="absolute right-0 top-0 h-full w-1.5 cursor-col-resize hover:bg-primary"
-                  onPointerDown={(e) => resize(e, c)}
-                  onDoubleClick={() => setCustom(({ [c]: _, ...rest }) => rest)}
-                />
-              </div>
-            ))}
+                  key={c}
+                  role="columnheader"
+                  title={`${table.names[c]} (${table.dtypes[c]})`}
+                  // ARIA allows one sorted header at a time, so only level 1 gets aria-sort.
+                  aria-sort={level !== 0 ? undefined : dir === "asc" ? "ascending" : "descending"}
+                  className={`${cell} relative flex items-center gap-1 ${numeric(c) ? "justify-end" : ""} ${ci >= sLeft && ci <= sRight ? "text-primary" : ""}`}
+                  style={{ width: w(c) }}
+                >
+                  <span className="truncate">{table.names[c]}</span>
+                  <span className="rounded bg-background px-1 text-[10px] leading-4 text-muted-foreground">{table.dtypes[c]}</span>
+                  <button
+                    type="button"
+                    data-sort=""
+                    aria-label={`Sort by ${table.names[c]}`}
+                    title={`Sort: ${!dir ? "ascending" : dir === "asc" ? "descending" : "file order"}. Shift+click to sort by several columns.`}
+                    className={`mr-1 shrink-0 text-xs ${dir ? "text-primary" : "text-muted-foreground/50 hover:text-foreground"}`}
+                    onClick={(e) => sortBy(c, e.shiftKey)}
+                  >
+                    {!dir ? "↕" : `${arrow(dir)}${sorts.length > 1 ? level + 1 : ""}`}
+                  </button>
+                  <div
+                    data-resize=""
+                    title="Drag to resize. Double-click for the automatic width."
+                    className="absolute right-0 top-0 h-full w-1.5 cursor-col-resize hover:bg-primary"
+                    onPointerDown={(e) => resize(e, c)}
+                    onDoubleClick={() => setCustom(({ [c]: _, ...rest }) => rest)}
+                  />
+                </div>
+              );
+            })}
           </div>
           {hits.slice(first, last).map((ri, k) => {
             const r = table.rows[ri];
@@ -664,7 +677,7 @@ function Grid({ table, note }: { table: Table; note: string }) {
       </div>
       <div className="border-t border-border px-2 py-1 text-xs text-muted-foreground">
         {hits.length.toLocaleString()} of {table.rows.length.toLocaleString()} rows · {cols.length} of {table.names.length}{" "}
-        columns{sort && ` · sorted by ${table.names[sort.col]} ${sort.dir === "asc" ? "↑" : "↓"}`} · {note}
+        columns{sorts.length > 0 && ` · sorted by ${sorts.map((k) => `${table.names[k.col]} ${arrow(k.dir)}`).join(", ")}`} · {note}
         {sel && ` · ${(sBottom - sTop + 1).toLocaleString()} × ${sRight - sLeft + 1} selected`}
         {sel && copied?.s === sel && ` · ${copied.note}`}
         {notice && ` · ${notice}`}
@@ -705,6 +718,52 @@ function FilterRow({ table, filter: f, onChange, onRemove }: {
       {n === 2 && value("b")}
       <button type="button" aria-label="Remove filter" className={BUTTON} onClick={onRemove}>×</button>
     </div>
+  );
+}
+
+/**
+ * The sort levels, one line each: a column, a direction, move up, move down,
+ * and remove. A column is in one level at most. Hidden columns are listed too.
+ */
+function SortPanel({ table, sorts, setSorts }: {
+  table: Table;
+  sorts: SortKey[];
+  setSorts: (s: SortKey[]) => void;
+}) {
+  const set = (i: number, k: SortKey) => setSorts(sorts.map((x, j) => (j === i ? k : x)));
+  const swap = (i: number, j: number) => {
+    const next = sorts.slice();
+    [next[i], next[j]] = [next[j], next[i]];
+    setSorts(next);
+  };
+  const used = (c: number) => sorts.some((k) => k.col === c);
+  const free = table.names.findIndex((_, c) => !used(c));
+  return (
+    <Popover name="Sort" title="Sort by several columns" label={sorts.length ? `Sort (${sorts.length})` : "Sort"}>
+      <div className="flex flex-col gap-1">
+        {sorts.map((k, i) => (
+          <div key={i} data-level={i + 1} className="flex items-center gap-2">
+            <span className="w-4 text-right text-muted-foreground">{i + 1}</span>
+            <select aria-label="Sort column" className={FIELD} value={k.col} onChange={(e) => set(i, { ...k, col: Number(e.target.value) })}>
+              {table.names.map((name, c) => <option key={c} value={c} disabled={c !== k.col && used(c)}>{name}</option>)}
+            </select>
+            <select aria-label="Sort direction" className={FIELD} value={k.dir} onChange={(e) => set(i, { ...k, dir: e.target.value as Dir })}>
+              <option value="asc">ascending</option>
+              <option value="desc">descending</option>
+            </select>
+            <button type="button" aria-label="Move up" title="Move up" className={BUTTON} disabled={i === 0} onClick={() => swap(i, i - 1)}>↑</button>
+            <button type="button" aria-label="Move down" title="Move down" className={BUTTON} disabled={i === sorts.length - 1} onClick={() => swap(i, i + 1)}>↓</button>
+            <button type="button" aria-label="Remove level" title="Remove level" className={BUTTON} onClick={() => setSorts(sorts.filter((_, j) => j !== i))}>×</button>
+          </div>
+        ))}
+        <div className="flex gap-2">
+          <button type="button" className={BUTTON} disabled={free < 0} onClick={() => setSorts([...sorts, { col: free, dir: "asc" }])}>
+            Add level
+          </button>
+          <button type="button" className={BUTTON} disabled={!sorts.length} onClick={() => setSorts([])}>Clear</button>
+        </div>
+      </div>
+    </Popover>
   );
 }
 
