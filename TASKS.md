@@ -44,3 +44,11 @@ Chunk size: one plan chunk. 2 chunks. Stop if chunk 1 is red.
 - [x] 1. `logic.ts` (`ENCODINGS`, `decode()`) + 2 tests → A1 41 of 41 pass · `tsc` exit 0 (2026-09-11)
 - [x] 2. Loader, Encoding select, status bar, ⌘F / ⌘G, Thai test file → E1–E3 and K2–K4 pass · `dsv@0.5.0 running`
       E1 34 unreadable → `กรุงเทพ` exact · E2 52 ms / 46 ms · A2 677 ms · A3 64 ms · A4 33
+
+## v1.5 (0.6.0)
+
+Plan: "Proposal v1.5" (approved `go`, 2026-09-14). Thread: thr_eksuvt3xcn. Branch `feat/sort`.
+Chunk size: one plan chunk. 2 chunks. Stop if chunk 1 is red.
+
+- [x] 1. `logic.ts` (`sortHits()`, cached ranks) + 5 tests → A1 46 of 46 pass · T1 `tsc` exit 0 (Node v24.18.0, 2026-09-14)
+- [ ] 2. `app.tsx` (sort button, status bar, `aria-sort`, go to row by `indexOf`) → O1–O5, G1, A2–A4 · `dsv@0.6.0 running`

@@ -1,10 +1,10 @@
-// A1: node --test logic.test.ts  →  41 of 41 must pass.
+// A1: node --test logic.test.ts  →  46 of 46 must pass.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   cells, decode, detectDelimiter, detectHeader, floorIndex, FORMAT, inferColumn, parse, predicate, query,
-  recordDelimiter, step, toDate, toTable, toTsv,
-  type Dtype, type Format, type Op, type Reading, type Sel,
+  recordDelimiter, sortHits, step, toDate, toTable, toTsv,
+  type Dtype, type Format, type Op, type Reading, type Sel, type Table,
 } from "./logic.ts";
 
 const pick = (values: string[], dtype: Dtype, op: Op, a = "", b = "", r?: Reading) => {
@@ -251,4 +251,44 @@ test("encoding: Windows-874 bytes give Thai text", () => {
 test("encoding: bad UTF-8 bytes are counted", () => {
   assert.deepEqual(decode(Uint8Array.of(0x61, 0xff, 0x62, 0xc3), "utf-8"), { text: `a${BAD}b${BAD}`, bad: 2 });
   assert.deepEqual(decode(new TextEncoder().encode("ok,é"), "utf-8"), { text: "ok,é", bad: 0 });
+});
+
+// v1.5 — sort by column
+const all = (t: Table) => t.rows.map((_, i) => i);
+const sorted = (t: Table, c: number) => [sortHits(t, all(t), c, "asc"), sortHits(t, all(t), c, "desc")];
+const values = (t: Table, c: number, hits: number[]) => hits.map((i) => t.rows[i][c]);
+const oneCol = (dtype: Dtype, v: string[]): Table =>
+  ({ names: ["v"], rows: v.map((x) => [x]), dtypes: [dtype], reads: [{ comma: false, order: "ymd" }] });
+test("sort: numbers with a decimal comma, both directions", () => {
+  const t = toTable(parse("id;price\n1;1,5\n2;10\n3;-3,25\n4;2", ";"), true);
+  assert.deepEqual([t.dtypes[1], t.reads[1].comma], ["float", true]);
+  const [asc, desc] = sorted(t, 1);
+  assert.deepEqual(values(t, 1, asc), ["-3,25", "1,5", "2", "10"]);
+  assert.deepEqual(values(t, 1, desc), ["10", "2", "1,5", "-3,25"]);
+  assert.deepEqual(sortHits(t, [0, 1, 3], 1, "desc"), [1, 3, 0]);
+});
+test("sort: DMY dates", () => {
+  const t = toTable(parse("d\n13/01/2024\n05/02/2023\n01/12/2024", ","), true);
+  assert.deepEqual([t.dtypes[0], t.reads[0].order], ["date", "dmy"]);
+  const [asc, desc] = sorted(t, 0);
+  assert.deepEqual(values(t, 0, asc), ["05/02/2023", "13/01/2024", "01/12/2024"]);
+  assert.deepEqual(values(t, 0, desc), ["01/12/2024", "13/01/2024", "05/02/2023"]);
+});
+test("sort: strings with numbers in numeric order, case ignored", () => {
+  const t = oneCol("string", ["item 10", "Item 2", "banana", "Apple", "item 1"]);
+  const [asc, desc] = sorted(t, 0);
+  assert.deepEqual(values(t, 0, asc), ["Apple", "banana", "item 1", "Item 2", "item 10"]);
+  assert.deepEqual(values(t, 0, desc), ["item 10", "Item 2", "item 1", "banana", "Apple"]);
+});
+test("sort: empty and unreadable cells last in both directions", () => {
+  assert.deepEqual(sorted(oneCol("int", ["3", "", "x", "1", "2"]), 0), [[3, 4, 0, 1, 2], [0, 4, 3, 1, 2]]);
+  assert.deepEqual(sorted(oneCol("string", ["b", " ", "a"]), 0), [[2, 0, 1], [0, 2, 1]]);
+  assert.deepEqual(sorted(oneCol("date", ["2024-01-02", "soon", "2023-05-06"]), 0), [[2, 0, 1], [0, 2, 1]]);
+});
+test("sort: equal values keep the file order, bool false first, ranks cached", () => {
+  const t = oneCol("int", ["2", "1", "2", "1"]);
+  assert.deepEqual(sorted(t, 0), [[1, 3, 0, 2], [0, 2, 1, 3]]);
+  assert.ok(t.ranks?.[0]);
+  assert.deepEqual(sorted(oneCol("string", ["oslo", "Lima", "Oslo"]), 0), [[1, 0, 2], [0, 2, 1]]);
+  assert.deepEqual(sorted(oneCol("bool", ["true", "FALSE", "True", "false"]), 0), [[1, 3, 0, 2], [0, 2, 1, 3]]);
 });

@@ -35,6 +35,8 @@ export interface Table {
   lower?: string[];
   /** Lower-cased columns, each built on the first search that picks it. */
   lowerCols?: string[][];
+  /** Sort ranks, each built on the first sort by its column. */
+  ranks?: Int32Array[];
 }
 
 const LF = 10;
@@ -361,6 +363,63 @@ export function query(t: Table, search: string, scope: number[], filters: Filter
     out.push(i);
   }
   return out;
+}
+
+export type Dir = "asc" | "desc";
+
+const COLLATOR = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
+const LAST = 0x7fffffff; // the rank of empty and unreadable cells
+
+/** A cell as a sort key for dtype `t` read with `r`, or null when it is empty or does not read as `t`. */
+function sortKey(t: Dtype, r: Reading, v: string): number | string | null {
+  const s = v.trim();
+  if (!s) return null;
+  let n: number;
+  switch (t) {
+    case "string": return s;
+    case "bool": return BOOL.test(s) ? Number(s.toLowerCase() === "true") : null;
+    case "date": n = toDate(s, r.order); break;
+    default: n = toNumber(s, r.comma);
+  }
+  return Number.isNaN(n) ? null : n;
+}
+
+/**
+ * The sort rank of every row in column `c`, cached on the table. Text compares
+ * with numbers as numbers and case ignored. Equal values share a rank. Empty
+ * and unreadable cells rank LAST.
+ */
+function rank(t: Table, c: number): Int32Array {
+  const ranks = (t.ranks ??= []);
+  if (ranks[c]) return ranks[c];
+  const type = t.dtypes[c] ?? "string";
+  const read = t.reads[c] ?? PLAIN;
+  const keys = t.rows.map((row) => sortKey(type, read, row[c] ?? ""));
+  const cmp = type === "string"
+    ? (a: number, b: number) => COLLATOR.compare(keys[a] as string, keys[b] as string)
+    : (a: number, b: number) => (keys[a] as number) - (keys[b] as number);
+  const valid: number[] = [];
+  keys.forEach((k, i) => {
+    if (k !== null) valid.push(i);
+  });
+  valid.sort(cmp);
+  const out = new Int32Array(keys.length).fill(LAST);
+  let k = 0;
+  for (let j = 0; j < valid.length; j++) {
+    if (j && cmp(valid[j - 1], valid[j])) k++;
+    out[valid[j]] = k;
+  }
+  return (ranks[c] = out);
+}
+
+/**
+ * `hits` in the order of column `c`, as a new array. Equal values keep their
+ * order. Empty and unreadable cells stay last in both directions.
+ */
+export function sortHits(t: Table, hits: number[], c: number, dir: Dir): number[] {
+  const r = rank(t, c);
+  const sign = dir === "asc" ? 1 : -1;
+  return hits.slice().sort((a, b) => (r[a] === LAST || r[b] === LAST ? r[a] - r[b] : sign * (r[a] - r[b])));
 }
 
 /** Index of the last value ≤ x in an ascending array, or -1. */
