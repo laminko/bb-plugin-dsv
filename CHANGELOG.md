@@ -2,7 +2,7 @@
 
 ## History rewrite — 2026-09-14
 
-The commits after `1015ef1` were rewritten to correct their author identity. Their content did not change, but their IDs did. `main` was force-pushed.
+All commits were rewritten to correct their author identity and signature. Their content did not change, but their IDs did.
 
 ## Docs — 2026-09-14
 
