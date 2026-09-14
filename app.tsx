@@ -40,7 +40,7 @@ const ARROWS: Record<string, [number, number] | undefined> = { ArrowUp: [-1, 0],
 // ⌘F / Ctrl+F and ⌘G / Ctrl+G: the box each key focuses.
 const FIND_KEYS: Record<string, string | undefined> = { f: 'input[type="search"]', g: 'input[aria-label="Go to row"]' };
 
-// Icons "clipboard", "paintbrush", "filter", "table-cells", and "code": Font Awesome Free 6.7.2 by Fonticons, Inc.
+// Icons "clipboard", "paintbrush", "filter", "sort", "table-cells", and "code": Font Awesome Free 6.7.2 by Fonticons, Inc.
 // License CC BY 4.0, https://fontawesome.com/license/free
 const ICONS = {
   clipboard: {
@@ -57,6 +57,11 @@ const ICONS = {
     name: "Add filter",
     box: "0 0 512 512",
     d: "M3.9 54.9C10.5 40.9 24.5 32 40 32l432 0c15.5 0 29.5 8.9 36.1 22.9s4.6 30.5-5.2 42.5L320 320.9 320 448c0 12.1-6.8 23.2-17.7 28.6s-23.8 4.3-33.5-3l-64-48c-8.1-6-12.8-15.5-12.8-25.6l0-79.1L9 97.3C-.7 85.4-2.8 68.8 3.9 54.9z",
+  },
+  sort: {
+    name: "Sort",
+    box: "0 0 320 512",
+    d: "M137.4 41.4c12.5-12.5 32.8-12.5 45.3 0l128 128c9.2 9.2 11.9 22.9 6.9 34.9s-16.6 19.8-29.6 19.8L32 224c-12.9 0-24.6-7.8-29.6-19.8s-2.2-25.7 6.9-34.9l128-128zm0 429.3l-128-128c-9.2-9.2-11.9-22.9-6.9-34.9s16.6-19.8 29.6-19.8l256 0c12.9 0 24.6 7.8 29.6 19.8s2.2 25.7-6.9 34.9l-128 128c-12.5 12.5-32.8 12.5-45.3 0z",
   },
   grid: {
     name: "Grid",
@@ -739,7 +744,7 @@ function SortPanel({ table, sorts, setSorts }: {
   const used = (c: number) => sorts.some((k) => k.col === c);
   const free = table.names.findIndex((_, c) => !used(c));
   return (
-    <Popover name="Sort" title="Sort by several columns" label={sorts.length ? `Sort (${sorts.length})` : "Sort"}>
+    <Popover name="Sort" title="Sort by several columns" label={<><Icon name="sort" />{sorts.length ? `Sort (${sorts.length})` : "Sort"}</>}>
       <div className="flex flex-col gap-1">
         {sorts.map((k, i) => (
           <div key={i} data-level={i + 1} className="flex items-center gap-2">

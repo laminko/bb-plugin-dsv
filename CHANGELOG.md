@@ -1,5 +1,23 @@
 # CHANGELOG — bb-plugin-dsv
 
+## 0.7.1 — 2026-09-14
+
+Request: "add sort icon in "Sort" button". Branch `feat/sort-icon`.
+
+### Changed
+
+- The Sort button shows the Font Awesome Free 6.7.2 `sort` icon before its word, like Filter, Copy, and Format. The word, the level count, and the title stay.
+- The path is copied from Font Awesome's `svgs/solid/sort.svg` at tag 6.7.2. The `filter` path from the same source equals the one in `app.tsx`. The CC BY 4.0 note names the new icon.
+
+### Verified
+
+| # | Check | Target | Measured |
+|---|---|---|---|
+| A1 | tests | 49 of 49 | 49 of 49 |
+| T1 | `tsc` | exit 0 | exit 0 |
+| I2 | Sort button in the live grid | icon, word, title | 1 `<svg>`, 14 × 14 px as on Filter; text "Sort"; title "Sort by several columns"; 62 × 28 px |
+| — | plugin | running | `dsv@0.7.1 running` |
+
 ## Repo location — 2026-09-14
 
 The repo is `~/Gondor/GitHub/bb-plugin-dsv`, on `main`. The installed `dsv@0.7.0` runs from it.

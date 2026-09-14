@@ -71,3 +71,5 @@ Chunk size: one plan chunk. 3 chunks. Stop if a chunk is red.
       working tree restored to `HEAD` (it held the 0.5.0 files) · A1 49 of 49 · `tsc` exit 0 · `bb plugin install <path> --yes` → `dsv@0.7.0 running` from the new path
 - [x] Back to `~/Gondor/GitHub/bb-plugin-dsv` (user's choice, 2026-09-14): `main` fast-forwarded to `origin/main` (`800eb03`); `feat/sort` was already in `main`
       A1 49 of 49 · `tsc` exit 0 · build has the v1.6 code · `bb plugin install <path> --yes` → `dsv@0.7.0 running` from this clone
+- [x] 0.7.1 Sort button: Font Awesome Free `sort` icon (branch `feat/sort-icon`) → `tsc` exit 0 · A1 49 of 49 · `dsv@0.7.1 running`
+      svg 1 of 1 · icon 14 × 14 px, as on Filter · text "Sort" and title kept
