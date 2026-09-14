@@ -41,7 +41,7 @@ How measured: headless Chrome on port 9333, bb's web UI `127.0.0.1:38886`, viewp
 - The first `v16.mjs` run failed G1. The defect was in my check, not in the plugin. It compared `style.top` with `scrollTop + 28`, and Chrome reads a large `top` back with 6 significant digits (`2.71144e+06px`). The check now uses the screen position. The rerun passed 13 of 13.
 - A2 is 297 ms. Earlier runs measured 621–833 ms. Not explained; the browser may have cached the file.
 - The live run could not see bb's storage list in the DOM. `v16.mjs` opens the file from its restored tab. A2 clicked the storage entry at (958, 387), not at y = 351.
-- The "Recovery" entry names `~/Gondor/GitHub/bb-plugins/bb-plugin-dsv`. The repo is at `~/Gondor/GitHub/bb-plugin-dsv`. Not changed.
+- The "Recovery" entry names `~/Gondor/GitHub/bb-plugins/bb-plugin-dsv`. The repo is at `~/Gondor/GitHub/bb-plugin-dsv`. Corrected after 0.7.0, in a separate commit.
 
 ### Not included
 
@@ -86,7 +86,7 @@ Measured on 0.7.0 with 1 sort level, in the v1.6 run (see 0.7.0). The 0.6.0 buil
 
 The source was lost. It was in the personal workspace `env_2ias83ucbe`, and bb deleted that workspace on 2026-09-11 when its threads were archived.
 The files were rebuilt from 3 Claude transcripts. 119 Write and Edit calls were replayed: 118 applied and 1 skipped, because it had failed in the original session.
-New location: `~/Gondor/GitHub/bb-plugins/bb-plugin-dsv`. No code changed. A1: 41 of 41 tests pass.
+New location: `~/Gondor/GitHub/bb-plugin-dsv`. The first copy went to `~/Gondor/GitHub/bb-plugins/bb-plugin-dsv`. No code changed. A1: 41 of 41 tests pass.
 Not recovered: files made only by shell commands, for example the Thai test file for E1.
 
 ## 0.5.0 — 2026-09-11
