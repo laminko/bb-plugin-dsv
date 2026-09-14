@@ -1,5 +1,31 @@
 # CHANGELOG — bb-plugin-dsv
 
+## 0.6.0 — 2026-09-14
+
+Plan: "Proposal v1.5" in `thr_huv4udkmb8/csv-plugin-plan.md`. The user approved it (`go`) in thread thr_eksuvt3xcn.
+
+### Added
+
+- Sort by column. Each column name has a sort button. A click goes: ascending → descending → file order. The button shows ↕, ↑, or ↓.
+- Numbers and dates sort by value, with the decimal symbol and date order of the column. Text sorts numbers as numbers ("item 2" before "item 10"). Case has no effect. Bool: false first.
+- Empty cells, and cells that do not read as the column dtype, stay last in both directions. Equal values keep the file order.
+- The sort applies to the search and filter hits. Copy gives the rows in the sorted order.
+- The status bar shows `sorted by <name> ↑` or `↓`. The header cell has `aria-sort`.
+
+### Changed
+
+- `logic.ts` adds `sortHits()`. It caches the ranks of each sorted column on the table (`ranks`). A1 has 46 tests.
+- Go to row finds the row with a scan (`indexOf`). A sort puts the hits out of file order, so the binary search no longer works.
+- A click on a sort button does not select the column.
+
+### Verified
+
+| # | Target | Measured |
+|---|---|---|
+| A1 | 46 of 46 | 46 of 46 |
+| T1 | `tsc` exit 0 | exit 0 |
+| O1–O5, G1, A2–A4 | see the plan | not measured yet |
+
 ## Recovery — 2026-09-14
 
 The source was lost. It was in the personal workspace `env_2ias83ucbe`, and bb deleted that workspace on 2026-09-11 when its threads were archived.

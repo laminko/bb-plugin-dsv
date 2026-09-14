@@ -1,4 +1,4 @@
-// Opens delimited text (csv, tsv, …) as a typed grid: search, AND filters,
+// Opens delimited text (csv, tsv, …) as a typed grid: search, AND filters, sort,
 // column picker, go to row. "Code" shows the raw text in bb's source viewer. Pure logic is in logic.ts.
 import {
   definePluginApp,
@@ -15,8 +15,8 @@ import {
 } from "react";
 import {
   arity, bounds, cells, decode, DELIMITERS, detectDelimiter, detectHeader, ENCODINGS, family, floorIndex, FORMAT, OPS, parse, query,
-  recordDelimiter, step, toTable, toTsv,
-  type Filter, type Format, type Op, type Sel, type Table,
+  recordDelimiter, sortHits, step, toTable, toTsv,
+  type Dir, type Filter, type Format, type Op, type Sel, type Table,
 } from "./logic.ts";
 
 export default definePluginApp((app) => {
@@ -281,7 +281,13 @@ function Grid({ table, note }: { table: Table; note: string }) {
   const [jump, setJump] = useState<number | null>(null); // the row number typed in "Go to row"
   const [custom, setCustom] = useState<Record<number, number>>({}); // column → width from a drag
   const [copyKey, setCopyKeyState] = useState(() => (localStorage.getItem(COPY_KEY) === "names" ? "names" : "data"));
-  const hits = useMemo(() => query(table, search, scope, filters), [table, search, scope, filters]);
+  const [sort, setSort] = useState<{ col: number; dir: Dir } | null>(null);
+  const hits = useMemo(() => {
+    const found = query(table, search, scope, filters);
+    return sort ? sortHits(table, found, sort.col, sort.dir) : found;
+  }, [table, search, scope, filters, sort]);
+  // A sort button click: ascending, then descending, then the file order.
+  const cycle = (c: number) => setSort(sort?.col !== c ? { col: c, dir: "asc" } : sort.dir === "asc" ? { col: c, dir: "desc" } : null);
   const cols = table.names.map((_, c) => c).filter((c) => !hidden.has(c));
   const widths = useMemo(
     () =>
@@ -319,10 +325,8 @@ function Grid({ table, note }: { table: Table; note: string }) {
 
   // Go to row N: row N moves to the top and is marked.
   // A row that the search or filters hide is only reported in the status bar.
-  const find = (row: number) => {
-    const k = floorIndex(hits, row);
-    return hits[k] === row ? k : -1;
-  };
+  // A sort puts the hits out of file order, so this is a scan, not a binary search.
+  const find = (row: number) => hits.indexOf(row);
   const go = (n: number) => {
     setJump(n);
     const k = find(n - 1);
@@ -385,9 +389,9 @@ function Grid({ table, note }: { table: Table; note: string }) {
     const y = e.clientY - b.top;
     const R = hits.length - 1;
     const C = cols.length - 1;
-    // Ignore other buttons, an empty grid, the scrollbars, and the resize handles.
+    // Ignore other buttons, an empty grid, the scrollbars, the resize handles, and the sort buttons.
     if (e.button !== 0 || R < 0 || C < 0 || x >= el.clientWidth || y >= el.clientHeight) return;
-    if ((e.target as Element).closest("[data-resize]")) return;
+    if ((e.target as Element).closest("[data-resize], [data-sort]")) return;
     e.preventDefault();
     el.focus({ preventScroll: true });
     if (y < ROW_H && x < GUTTER) {
@@ -585,12 +589,24 @@ function Grid({ table, note }: { table: Table; note: string }) {
             {cols.map((c, ci) => (
               <div
                 key={c}
+                role="columnheader"
                 title={`${table.names[c]} (${table.dtypes[c]})`}
+                aria-sort={sort?.col !== c ? undefined : sort.dir === "asc" ? "ascending" : "descending"}
                 className={`${cell} relative flex items-center gap-1 ${numeric(c) ? "justify-end" : ""} ${ci >= sLeft && ci <= sRight ? "text-primary" : ""}`}
                 style={{ width: w(c) }}
               >
                 <span className="truncate">{table.names[c]}</span>
                 <span className="rounded bg-background px-1 text-[10px] leading-4 text-muted-foreground">{table.dtypes[c]}</span>
+                <button
+                  type="button"
+                  data-sort=""
+                  aria-label={`Sort by ${table.names[c]}`}
+                  title={`Sort: ${sort?.col !== c ? "ascending" : sort.dir === "asc" ? "descending" : "file order"}`}
+                  className={`mr-1 shrink-0 text-xs ${sort?.col === c ? "text-primary" : "text-muted-foreground/50 hover:text-foreground"}`}
+                  onClick={() => cycle(c)}
+                >
+                  {sort?.col !== c ? "↕" : sort.dir === "asc" ? "↑" : "↓"}
+                </button>
                 <div
                   data-resize=""
                   title="Drag to resize. Double-click for the automatic width."
@@ -648,7 +664,7 @@ function Grid({ table, note }: { table: Table; note: string }) {
       </div>
       <div className="border-t border-border px-2 py-1 text-xs text-muted-foreground">
         {hits.length.toLocaleString()} of {table.rows.length.toLocaleString()} rows · {cols.length} of {table.names.length}{" "}
-        columns · {note}
+        columns{sort && ` · sorted by ${table.names[sort.col]} ${sort.dir === "asc" ? "↑" : "↓"}`} · {note}
         {sel && ` · ${(sBottom - sTop + 1).toLocaleString()} × ${sRight - sLeft + 1} selected`}
         {sel && copied?.s === sel && ` · ${copied.note}`}
         {notice && ` · ${notice}`}

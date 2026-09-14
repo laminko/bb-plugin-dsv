@@ -52,3 +52,4 @@ Chunk size: one plan chunk. 2 chunks. Stop if chunk 1 is red.
 
 - [x] 1. `logic.ts` (`sortHits()`, cached ranks) + 5 tests → A1 46 of 46 pass · T1 `tsc` exit 0 (Node v24.18.0, 2026-09-14)
 - [ ] 2. `app.tsx` (sort button, status bar, `aria-sort`, go to row by `indexOf`) → O1–O5, G1, A2–A4 · `dsv@0.6.0 running`
+      code done: `tsc` exit 0 · A1 46 of 46 · `dsv@0.6.0 running` · dist has `data-sort` · O1–O5, G1, A2–A4 not measured (handoff: `thr_eksuvt3xcn/handoff-dsv-sort.md`)
