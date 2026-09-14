@@ -1,0 +1,25 @@
+{
+  "name": "bb-plugin-dsv",
+  "version": "0.5.0",
+  "type": "module",
+  "engines": {
+    "bb": ">=0.42",
+    "bbPluginSdk": ">=0.4.47"
+  },
+  "bb": {
+    "name": "DSV Table",
+    "description": "Opens CSV, TSV, and other delimited files as a typed, searchable, filterable grid.",
+    "branding": { "icon": "Table" },
+    "server": "./server.ts",
+    "app": "./app.tsx",
+    "skills": []
+  },
+  "scripts": {
+    "test": "node --test logic.test.ts"
+  },
+  "devDependencies": {
+    "@get-bb/plugin-sdk": "0.4.47",
+    "@types/react": "^19.0.0",
+    "typescript": "^5.7.0"
+  }
+}
