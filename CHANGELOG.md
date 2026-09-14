@@ -30,7 +30,7 @@ Plan: "Proposal v1.6" and "Decisions v1.6" in `thr_huv4udkmb8/csv-plugin-plan.md
 | M5 | panel: `country ↑`, `city ↓`, `total ↑`, move `total` to level 1 | 0 of 99,999; header numbers match the panel | 0 of 99,999; panel 1 total ↑, 2 country ↑, 3 city ↓; headers `↑1`, `↑2`, `↓3`; `Sort (3)` |
 | M6 | panel column selects | other levels' columns disabled | 3 of 3 lines |
 | M7 | first level on a string column (`email`); its direction change | < 500 ms; < 300 ms | 202 ms; 54 ms |
-| A2 / A3 / A4 | < 2 s / < 300 ms / < 60 | | 297 ms click → paint / 62 ms worst of 20 steps / 33 rows max of 47 positions |
+| A2 / A3 / A4 | open, search and filter, scroll | < 2 s / < 300 ms / < 60 | 297 ms click → paint / 62 ms worst of 20 steps / 33 rows max of 47 positions |
 
 The v1.5 checks O1–O5 and G1 were measured in the same run. They are in the 0.6.0 table.
 
@@ -68,17 +68,17 @@ Plan: "Proposal v1.5" in `thr_huv4udkmb8/csv-plugin-plan.md`. The user approved 
 
 ### Verified
 
-| # | Target | Measured |
-|---|---|---|
-| A1 | 46 of 46 | 46 of 46 |
-| T1 | `tsc` exit 0 | exit 0 |
+| # | Check | Target | Measured |
+|---|---|---|---|
+| A1 | tests | 46 of 46 | 46 of 46 |
+| T1 | `tsc` | exit 0 | exit 0 |
 | O1 | click the `price` sort button 3 times | minimum, maximum, file order | row 1: 0.00 `↑`, 500.00 `↓`, row 1 `↕` |
 | O2 | first sort of `name` | click → paint < 500 ms | 109 ms; 0 of 99,999 pairs out of order |
 | O3 | direction change on `name` | click → paint < 300 ms | 44 ms |
 | O4 | search `oslo` while sorted | the order stays; < 300 ms | 72 ms; 10,092 rows, 0 of 10,091 pairs out of order |
 | O5 | click the `city` name | column selected; sort unchanged | `100,000 × 1 selected`; `sorted by name ↓` stays |
 | G1 | go to row 50,001 while sorted | at the top, marked | marked, 28 px under the header; 59 ms |
-| A2 / A3 / A4 | < 2 s / < 300 ms / < 60 | 297 ms / 62 ms / 33 rows |
+| A2 / A3 / A4 | open, search and filter, scroll | < 2 s / < 300 ms / < 60 | 297 ms / 62 ms / 33 rows |
 
 Measured on 0.7.0 with 1 sort level, in the v1.6 run (see 0.7.0). The 0.6.0 build itself was not measured live.
 
@@ -202,7 +202,7 @@ bb's viewer shows the first 3,493 of 100,001 lines, plus a "Load full file" butt
 | C2 | Code view first paint, 100k file | < 2 s | 495 ms worst of 3 opens (the others: 54 ms, 53 ms) |
 | C3 | A1 | 34 of 34 | 34 of 34 |
 | C4 | optional: Go to row highlighted in the Code view | — | not built: it needs file lines, which 0.2.2 removed |
-| A2 / A3 / A4 | < 2 s / < 300 ms / < 60 | 621 ms / 78 ms / 34 rows |
+| A2 / A3 / A4 | open, search and filter, scroll | < 2 s / < 300 ms / < 60 | 621 ms / 78 ms / 34 rows |
 
 Also measured: "Load full file" renders all 100,001 lines in 4,066 ms.
 
