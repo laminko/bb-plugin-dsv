@@ -67,11 +67,12 @@ Chunk size: one plan chunk. 3 chunks. Stop if a chunk is red.
 - [x] 3. Live checks M1–M7, O1–O5, G1, A2–A4 (headless Chrome, port 9333) → "Result v1.6" in the plan
       `thr_eksuvt3xcn/v16.mjs` 13 of 13 (run 1: 12 of 13, a defect in my G1 check) · M1 and M5 0 of 99,999 pairs out of order · M6 3 of 3 · M7 202 ms / 54 ms · A2 297 ms · A3 62 ms · A4 33
 - [x] Merge and push: `main` fast-forwarded to `feat/sort` and pushed (`1015ef1`)
-- [x] Repo move to `~/Gondor/GitHub/bb-plugins/bb-plugin-dsv` (user's choice, 2026-09-14), recorded and pushed in `800eb03`
+- [x] Repo move to `~/Gondor/GitHub/bb-plugins/bb-plugin-dsv` (user's choice, 2026-09-14), recorded and pushed in the commit "Record the repo move to bb-plugins/bb-plugin-dsv"
       working tree restored to `HEAD` (it held the 0.5.0 files) · A1 49 of 49 · `tsc` exit 0 · `bb plugin install <path> --yes` → `dsv@0.7.0 running` from the new path
-- [x] Back to `~/Gondor/GitHub/bb-plugin-dsv` (user's choice, 2026-09-14): `main` fast-forwarded to `origin/main` (`800eb03`); `feat/sort` was already in `main`
+- [x] Back to `~/Gondor/GitHub/bb-plugin-dsv` (user's choice, 2026-09-14): `main` fast-forwarded to `origin/main`; `feat/sort` was already in `main`
       A1 49 of 49 · `tsc` exit 0 · build has the v1.6 code · `bb plugin install <path> --yes` → `dsv@0.7.0 running` from this clone
 - [x] 0.7.1 Sort button: Font Awesome Free `sort` icon (branch `feat/sort-icon`) → `tsc` exit 0 · A1 49 of 49 · `dsv@0.7.1 running`
       svg 1 of 1 · icon 14 × 14 px, as on Filter · text "Sort" and title kept
 - [x] README.md + screenshot.png (branch `feat/sort-icon`) → P1 0 · P2 0 · P3 0 of 3,430 points · P4 reviewed by the user · D1 image link → committed file
       fresh clone: `bb plugin build` works with no `npm install` · the header reason note stays (user's choice)
+- [x] Author fix (user's request, 2026-09-14): commits after `1015ef1` rewritten with the `laminko` identity; `main` force-pushed with a lease
