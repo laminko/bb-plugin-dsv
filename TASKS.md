@@ -51,8 +51,9 @@ Plan: "Proposal v1.5" (approved `go`, 2026-09-14). Thread: thr_eksuvt3xcn. Branc
 Chunk size: one plan chunk. 2 chunks. Stop if chunk 1 is red.
 
 - [x] 1. `logic.ts` (`sortHits()`, cached ranks) + 5 tests → A1 46 of 46 pass · T1 `tsc` exit 0 (Node v24.18.0, 2026-09-14)
-- [ ] 2. `app.tsx` (sort button, status bar, `aria-sort`, go to row by `indexOf`) → O1–O5, G1, A2–A4 · `dsv@0.6.0 running`
-      code done: `tsc` exit 0 · A1 46 of 46 · `dsv@0.6.0 running` · dist has `data-sort` · O1–O5, G1, A2–A4 not measured (handoff: `thr_eksuvt3xcn/handoff-dsv-sort.md`)
+- [x] 2. `app.tsx` (sort button, status bar, `aria-sort`, go to row by `indexOf`) → O1–O5, G1, A2–A4 · `dsv@0.6.0 running`
+      code done: `tsc` exit 0 · A1 46 of 46 · `dsv@0.6.0 running` · dist has `data-sort`
+      measured on 0.7.0 with 1 level, in the v1.6 run: O1–O5 and G1 pass · O2 109 ms · O3 44 ms · O4 72 ms · G1 59 ms · A2 297 ms · A3 62 ms · A4 33
 
 ## v1.6 (0.7.0)
 
@@ -63,4 +64,5 @@ Chunk size: one plan chunk. 3 chunks. Stop if a chunk is red.
       `app.tsx` gets a one-line change (`[sort]`) so that T1 compiles. v1.5 behaviour is unchanged.
 - [x] 2. `app.tsx` (levels state, shift+click, level numbers, Sort panel, status bar) → T1 · `bb plugin reload dsv` · `dsv@0.7.0 running`
       T1 `tsc` exit 0 · A1 49 of 49 · `dsv@0.7.0 running` · `dist/app.js` has "Sort by several columns" (1 match)
-- [ ] 3. Live checks M1–M7, O1–O5, G1, A2–A4 (headless Chrome, port 9333) → "Result v1.6" in the plan
+- [x] 3. Live checks M1–M7, O1–O5, G1, A2–A4 (headless Chrome, port 9333) → "Result v1.6" in the plan
+      `thr_eksuvt3xcn/v16.mjs` 13 of 13 (run 1: 12 of 13, a defect in my G1 check) · M1 and M5 0 of 99,999 pairs out of order · M6 3 of 3 · M7 202 ms / 54 ms · A2 297 ms · A3 62 ms · A4 33

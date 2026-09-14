@@ -1,5 +1,53 @@
 # CHANGELOG — bb-plugin-dsv
 
+## 0.7.0 — 2026-09-14
+
+Plan: "Proposal v1.6" and "Decisions v1.6" in `thr_huv4udkmb8/csv-plugin-plan.md`. The user approved it (`go`, defaults 1–3) in thread thr_eksuvt3xcn.
+
+### Added
+
+- Sort by several columns. Level 1 sorts first. Level 2 sorts only rows that are equal in level 1, and so on. Rows equal in all levels keep the file order.
+- Header sort button. A click makes the column the only level: ascending → descending → off. Shift+click adds the column as the last level, ascending. Shift+click on a column in the list changes its direction in place. After descending, the level is removed.
+- With 2 or more levels, each sorted button shows its arrow and level number, for example `↑1` and `↓2`. With 1 level, it shows only the arrow.
+- Sort panel: a "Sort" button after Filter. The label shows the count, for example `Sort (2)`. One line per level: number, column, direction, move up, move down, remove. "Add level" adds the first unused column, ascending. "Clear" removes all levels. A column select disables the columns of the other levels. Hidden columns are listed too.
+- The status bar lists all levels: `sorted by category ↑, price ↓`. Only the level-1 header has `aria-sort`.
+
+### Changed
+
+- `logic.ts`: `SortKey { col, dir }`. `sortHits(t, hits, keys)` takes a list of levels. Empty and unreadable cells stay last inside each level. The rank cache is unchanged. A1 has 49 tests.
+- A plain click on a column that is already a level steps its direction, and the other levels go. Example: `↑2`, then a click, gives `↓` as the only level. The plan did not name the direction. This follows its "Click" rule.
+
+### Verified
+
+| # | Check | Target | Measured |
+|---|---|---|---|
+| A1 | tests | 49 of 49 | 49 of 49 |
+| T1 | `tsc` | exit 0 | exit 0 |
+| M1 | click `category`, shift+click `price` 2 times | 0 of 99,999 pairs out of order | 0 of 99,999 |
+| M2 | the same state | `↑1`, `↓2`; `sorted by category ↑, price ↓` | `↑1`, `↓2`; same text; `aria-sort` on `category` only |
+| M3 | shift+click `price` again | level removed; `category` shows `↑` | `↑` and `↕`; `sorted by category ↑` |
+| M4 | plain click on `name` | the only level is `name ↑` | `name ↑`; 1 of 20 buttons not `↕` |
+| M5 | panel: `country ↑`, `city ↓`, `total ↑`, move `total` to level 1 | 0 of 99,999; header numbers match the panel | 0 of 99,999; panel 1 total ↑, 2 country ↑, 3 city ↓; headers `↑1`, `↑2`, `↓3`; `Sort (3)` |
+| M6 | panel column selects | other levels' columns disabled | 3 of 3 lines |
+| M7 | first level on a string column (`email`); its direction change | < 500 ms; < 300 ms | 202 ms; 54 ms |
+| A2 / A3 / A4 | < 2 s / < 300 ms / < 60 | | 297 ms click → paint / 62 ms worst of 20 steps / 33 rows max of 47 positions |
+
+The v1.5 checks O1–O5 and G1 were measured in the same run. They are in the 0.6.0 table.
+
+How measured: headless Chrome on port 9333, bb's web UI `127.0.0.1:38886`, viewport 1440×913, grid 671 px tall, file `thr_8twbr93gzu/dsv-100k.csv`. Script: `thr_eksuvt3xcn/v16.mjs`, with real mouse input through CDP. An order check selects all rows, runs "Copy data" (clipboard stubbed), and tests every adjacent pair. Ties must keep the file order (`id`). The first 10 copied ids equal the grid's top 10 rows. Screenshots: `thr_eksuvt3xcn/dsv-v16-levels.png`, `dsv-v16-panel.png`.
+
+### Found
+
+- The first `v16.mjs` run failed G1. The defect was in my check, not in the plugin. It compared `style.top` with `scrollTop + 28`, and Chrome reads a large `top` back with 6 significant digits (`2.71144e+06px`). The check now uses the screen position. The rerun passed 13 of 13.
+- A2 is 297 ms. Earlier runs measured 621–833 ms. Not explained; the browser may have cached the file.
+- The live run could not see bb's storage list in the DOM. `v16.mjs` opens the file from its restored tab. A2 clicked the storage entry at (958, 387), not at y = 351.
+- The "Recovery" entry names `~/Gondor/GitHub/bb-plugins/bb-plugin-dsv`. The repo is at `~/Gondor/GitHub/bb-plugin-dsv`. Not changed.
+
+### Not included
+
+- Drag to reorder levels, saved sort presets, a sort that stays after the tab closes, a maximum number of levels.
+- Not tested live: a level on a hidden column, shift+click from the keyboard, dark mode, the Electron window. A paste into another app was not tested.
+
 ## 0.6.0 — 2026-09-14
 
 Plan: "Proposal v1.5" in `thr_huv4udkmb8/csv-plugin-plan.md`. The user approved it (`go`) in thread thr_eksuvt3xcn.
@@ -24,7 +72,15 @@ Plan: "Proposal v1.5" in `thr_huv4udkmb8/csv-plugin-plan.md`. The user approved 
 |---|---|---|
 | A1 | 46 of 46 | 46 of 46 |
 | T1 | `tsc` exit 0 | exit 0 |
-| O1–O5, G1, A2–A4 | see the plan | not measured yet |
+| O1 | click the `price` sort button 3 times | minimum, maximum, file order | row 1: 0.00 `↑`, 500.00 `↓`, row 1 `↕` |
+| O2 | first sort of `name` | click → paint < 500 ms | 109 ms; 0 of 99,999 pairs out of order |
+| O3 | direction change on `name` | click → paint < 300 ms | 44 ms |
+| O4 | search `oslo` while sorted | the order stays; < 300 ms | 72 ms; 10,092 rows, 0 of 10,091 pairs out of order |
+| O5 | click the `city` name | column selected; sort unchanged | `100,000 × 1 selected`; `sorted by name ↓` stays |
+| G1 | go to row 50,001 while sorted | at the top, marked | marked, 28 px under the header; 59 ms |
+| A2 / A3 / A4 | < 2 s / < 300 ms / < 60 | 297 ms / 62 ms / 33 rows |
+
+Measured on 0.7.0 with 1 sort level, in the v1.6 run (see 0.7.0). The 0.6.0 build itself was not measured live.
 
 ## Recovery — 2026-09-14
 
