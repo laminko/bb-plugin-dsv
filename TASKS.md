@@ -76,3 +76,4 @@ Chunk size: one plan chunk. 3 chunks. Stop if a chunk is red.
 - [x] README.md + screenshot.png (branch `feat/sort-icon`) → P1 0 · P2 0 · P3 0 of 3,430 points · P4 reviewed by the user · D1 image link → committed file
       fresh clone: `bb plugin build` works with no `npm install` · the header reason note stays (user's choice)
 - [x] Author and signature fix (user's request, 2026-09-14): all commits rewritten with the `laminko` author and signed with the personal key; commit IDs changed
+- [x] GitHub repo deleted and created again by the user (2026-09-14), pushed over `github.com-lmk` → 14 of 14 commits `laminko` with a `valid` signature · old commit IDs return HTTP 422 · contributors: `laminko` only
