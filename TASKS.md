@@ -57,7 +57,7 @@ Chunk size: one plan chunk. 2 chunks. Stop if chunk 1 is red.
 
 ## v1.6 (0.7.0)
 
-Plan: "Proposal v1.6" and "Decisions v1.6" (approved `go`, 2026-09-14, defaults 1–3). Thread: thr_eksuvt3xcn. Branch `feat/sort`.
+Plan: "Proposal v1.6" and "Decisions v1.6" (approved `go`, 2026-09-14, defaults 1–3, in thr_eksuvt3xcn). Built in thread thr_3tdnaaba2e. Branch `feat/sort`.
 Chunk size: one plan chunk. 3 chunks. Stop if a chunk is red.
 
 - [x] 1. `logic.ts` (`SortKey`, `sortHits()` takes a list of levels) + 3 tests; the 5 v1.5 sort tests use the list form → A1 49 of 49 pass · T1 `tsc` exit 0 (Node v24.18.0, 2026-09-14)
@@ -66,3 +66,6 @@ Chunk size: one plan chunk. 3 chunks. Stop if a chunk is red.
       T1 `tsc` exit 0 · A1 49 of 49 · `dsv@0.7.0 running` · `dist/app.js` has "Sort by several columns" (1 match)
 - [x] 3. Live checks M1–M7, O1–O5, G1, A2–A4 (headless Chrome, port 9333) → "Result v1.6" in the plan
       `thr_eksuvt3xcn/v16.mjs` 13 of 13 (run 1: 12 of 13, a defect in my G1 check) · M1 and M5 0 of 99,999 pairs out of order · M6 3 of 3 · M7 202 ms / 54 ms · A2 297 ms · A3 62 ms · A4 33
+- [x] Merge and push: `main` fast-forwarded to `feat/sort` and pushed (`1015ef1`)
+- [x] Repo move to `~/Gondor/GitHub/bb-plugins/bb-plugin-dsv` (user's choice, 2026-09-14)
+      working tree restored to `HEAD` (it held the 0.5.0 files) · A1 49 of 49 · `tsc` exit 0 · `bb plugin install <path> --yes` → `dsv@0.7.0 running` from the new path

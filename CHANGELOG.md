@@ -1,5 +1,13 @@
 # CHANGELOG — bb-plugin-dsv
 
+## Repo location — 2026-09-14
+
+After 0.7.0, the repo moved to a new clone at `~/Gondor/GitHub/bb-plugins/bb-plugin-dsv`. The user named this path.
+`bb plugin install <path> --yes` moved the installed `dsv` there and kept its settings. Status: `dsv@0.7.0 running`.
+Checked in the new clone: A1 49 of 49, `tsc` exit 0, and the `bb plugin build` output has the v1.6 code.
+At first, the clone's working tree held the 0.5.0 files of `bb-plugin-dsv.archived` (6 of 6 files identical). They were restored to the committed files. Nothing from them was committed.
+The old clone `~/Gondor/GitHub/bb-plugin-dsv` stays on disk, unchanged.
+
 ## 0.7.0 — 2026-09-14
 
 Plan: "Proposal v1.6" and "Decisions v1.6" in `thr_huv4udkmb8/csv-plugin-plan.md`. The user approved it (`go`, defaults 1–3) in thread thr_eksuvt3xcn.
