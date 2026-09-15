@@ -81,3 +81,13 @@ Chunk size: one plan chunk. 3 chunks. Stop if a chunk is red.
       I3 pass · W1 saved file = "Copy data with field names", 10,093 lines × 19 fields · W2 193 ms for 100,000 rows · W3 no names line with Header off · desktop app not tested
 - [x] 0.8.0 ⌘S / Ctrl+S clicks Save (user's request, 2026-09-15) → `tsc` exit 0 · A1 50 of 50 · `dsv@0.8.0 running` · I4 and K5–K8: 5 of 5 pass · K5 10,093 lines in 51 ms · K7 0 downloads in Code view · desktop app not tested
 - [x] 0.8.0 README screenshot with the Save button → 2,228 × 1,544 px · P1 0 · P2 0 · P3 0 of 3,430 points · 0 metadata chunks
+
+## v1.7 (0.9.0)
+
+Plan: "Proposal v1.7" and "Decisions v1.7" (approved `go`, 2026-09-15, defaults 1–5, in thr_nuuxhn6nnb). Built in thread thr_zg2iba5z4v. Branch `feat/viewer`.
+Chunk size: one plan chunk. 4 chunks. Stop if a chunk is red.
+
+- [x] 1. `logic.ts` `longest()` + 3 tests → A1 53 of 53 pass · T1 `tsc` exit 0 (Node v24.18.0, 2026-09-15)
+- [ ] 2. `app.tsx` fit on double-click → T1, `bb plugin reload dsv`, F1–F5
+- [ ] 3. `app.tsx` Viewer pane (Cell and Record tabs, record buttons) → T1, reload, V1–V4, R1–R8, P1, P2, A2–A4
+- [ ] 4. `README.md`, `CHANGELOG.md` 0.9.0, `TASKS.md`. No merge, no push.

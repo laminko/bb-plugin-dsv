@@ -1,8 +1,8 @@
-// A1: node --test logic.test.ts  →  50 of 50 must pass.
+// A1: node --test logic.test.ts  →  53 of 53 must pass.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  cells, decode, detectDelimiter, detectHeader, floorIndex, FORMAT, inferColumn, parse, predicate, query,
+  cells, decode, detectDelimiter, detectHeader, floorIndex, FORMAT, inferColumn, longest, parse, predicate, query,
   recordDelimiter, sortHits, step, toDate, toDelimited, toTable, toTsv,
   type Dtype, type Format, type Op, type Reading, type Sel, type Table,
 } from "./logic.ts";
@@ -321,4 +321,22 @@ test("sort: three levels, and an empty list gives the file order", () => {
   assert.deepEqual(sortHits(t, all(t), [keys[2], keys[0]]), [4, 2, 1, 0, 6, 3, 5]);
   assert.deepEqual(sortHits(t, all(t), []), [0, 1, 2, 3, 4, 5, 6]);
   assert.deepEqual(sortHits(t, [3, 1, 2], []), [3, 1, 2]);
+});
+
+// v1.7 — fit a column to its content
+test("longest: the k longest in order, with ties", () => {
+  const t = oneCol("string", ["bb", "a", "dddd", "cc", "eeee", "fff"]);
+  assert.deepEqual(longest(t, all(t), 0, 3), ["dddd", "eeee", "fff"]);
+  assert.deepEqual(longest(t, all(t), 0, 4), ["dddd", "eeee", "fff", "bb"]);
+  assert.deepEqual(longest(t, all(t), 0, 10), ["dddd", "eeee", "fff", "bb", "cc", "a"]);
+});
+test("longest: only the given rows count", () => {
+  const t = oneCol("string", ["bb", "a", "dddd", "cc", "eeee", "fff"]);
+  assert.deepEqual(longest(t, [1, 3, 5], 0, 2), ["fff", "cc"]);
+  assert.deepEqual(longest(t, [3, 0], 0, 2), ["cc", "bb"]);
+});
+test("longest: an empty column gives [\"\"]", () => {
+  const t = typed(["string", "string"], [["a", ""], ["b"], ["c", ""]]);
+  assert.deepEqual(longest(t, all(t), 1, 20), [""]);
+  assert.deepEqual(longest(t, [], 0, 20), [""]);
 });

@@ -434,6 +434,23 @@ export function sortHits(t: Table, hits: number[], keys: SortKey[]): number[] {
   });
 }
 
+/**
+ * The `k` longest values of column `col` in the rows `hits`, longest first.
+ * Equal lengths keep the order of `hits`. Empty cells do not count, so a column with no text gives [""].
+ */
+export function longest(t: Table, hits: number[], col: number, k: number): string[] {
+  const top: string[] = [];
+  for (const i of hits) {
+    const v = t.rows[i][col] ?? "";
+    if (!v || (top.length === k && v.length <= top[k - 1].length)) continue;
+    let j = top.length;
+    while (j > 0 && top[j - 1].length < v.length) j--;
+    top.splice(j, 0, v);
+    if (top.length > k) top.pop();
+  }
+  return top.length ? top : [""];
+}
+
 /** Index of the last value ≤ x in an ascending array, or -1. */
 export function floorIndex(sorted: number[], x: number): number {
   let lo = 0;
