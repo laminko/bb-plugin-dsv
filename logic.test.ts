@@ -1,9 +1,9 @@
-// A1: node --test logic.test.ts  →  49 of 49 must pass.
+// A1: node --test logic.test.ts  →  50 of 50 must pass.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   cells, decode, detectDelimiter, detectHeader, floorIndex, FORMAT, inferColumn, parse, predicate, query,
-  recordDelimiter, sortHits, step, toDate, toTable, toTsv,
+  recordDelimiter, sortHits, step, toDate, toDelimited, toTable, toTsv,
   type Dtype, type Format, type Op, type Reading, type Sel, type Table,
 } from "./logic.ts";
 
@@ -210,6 +210,12 @@ test("lookup: floorIndex finds a row among the hits", () => {
 const cities = () => toTable(parse("name,city,age\nAnn,Oslo,30\nBob,Lima,41\nCid,Oslo,25", ","), true);
 test("copy: TSV quoting", () => {
   assert.equal(toTsv([["a", "b\tc"], ['say "hi"', "x\ny"], ["", "z"]]), 'a\t"b\tc"\n"say ""hi"""\t"x\ny"\n\tz');
+});
+test("save: CSV quoting, and the parser reads it back", () => {
+  const rows = [["id", "note"], ["1", 'say "hi", then go'], ["2", "a\r\nb"], ["3", "tab\there"], ["4", ""]];
+  const csv = toDelimited(rows, ",");
+  assert.equal(csv, 'id,note\n1,"say ""hi"", then go"\n2,"a\r\nb"\n3,tab\there\n4,');
+  assert.deepEqual(parse(csv, ","), rows);
 });
 test("copy: a cell rectangle, with and without field names", () => {
   const t = cities();

@@ -1,5 +1,46 @@
 # CHANGELOG — bb-plugin-dsv
 
+## 0.8.0 — 2026-09-15
+
+Request: "add a save button". The user chose "Download current view". Second request: add shortcut for "Save" (cmd + S). Branch `feat/save-view`.
+
+### Added
+
+- Save button with the Font Awesome Free `floppy-disk` icon, after Copy. It saves the rows you see, in their order, with the shown columns, as `<file name>.view.csv`.
+- The column names go first only when the file has a header. The file is UTF-8 with a BOM, so Excel reads it as UTF-8. A cell with a comma, a line break, or `"` is quoted.
+- ⌘S / Ctrl+S clicks Save in Grid view, while the focus is anywhere in the plugin. The Save button title shows the key.
+
+### Changed
+
+- `logic.ts`: `toDelimited(rows, d)` writes CSV and TSV, and `toTsv` uses it. A1 has 50 tests.
+- `screenshot.png` shows the Save button. It was captured again in the same 2,228 × 1,544 px frame.
+
+### Verified
+
+| # | Check | Target | Measured |
+|---|---|---|---|
+| A1 | tests | 50 of 50 | 50 of 50 |
+| T1 | `tsc` | exit 0 | exit 0 |
+| I3 | Save button | icon, word, title | 1 `<svg>`; "Save"; title "Save the rows you see as a CSV file" |
+| W1 | search `oslo`, sort `name ↑`, `note` hidden, then Save | the file equals "Copy data with field names" of the same view | equal; 10,093 lines (names + 10,092 rows), 19 fields each; BOM; name `dsv-100k.view.csv`; 87 ms |
+| W2 | all 100,000 rows, then Save | click → download complete < 2 s | 193 ms; 100,001 lines; about 13.7 MB |
+| W3 | Header off, then Save | no column-name line | 100,001 data lines; line 1 is `id,name,email,…` |
+| I4 | Save title | ends with "(⌘S)" | "Save the rows you see as a CSV file (⌘S)" |
+| K8 | click a cell, ⌘F, then ⌘G | focus Search, then Go to row | Search; then Go to row |
+| K5 | search `oslo`, focus in Search, ⌘S | 1 download; lines = rows shown + 1 | 1 completed; `dsv-100k.view.csv`; 10,093 lines = 10,092 + 1; 51 ms |
+| K6 | click a cell, ⌘S | 1 download | 1 completed; 52 ms |
+| K7 | Code view, ⌘S | 0 downloads in 2 s | 0 |
+| S1 | README screenshot | Save shows; P1, P2, P3 = 0 | Save between Copy and Go to row; P1 0, P2 0, P3 0 of 3,430 points; 0 metadata chunks |
+
+How measured: real downloads in headless Chrome (port 9333) on bb's web UI, through CDP `Browser.setDownloadBehavior`. Script: `thr_3tdnaaba2e/save-check.mjs` in bb thread storage.
+I4 and K5–K8: real key presses through CDP `Input.dispatchKeyEvent`, script `thr_nuuxhn6nnb/key-check.mjs`. S1: script `thr_eksuvt3xcn/readme-shot.mjs`, same Chrome profile.
+
+### Not tested
+
+- The bb desktop app. Its code blocks downloads only in bb's built-in browser tabs (`will-download` on the tab session). No handler was found for the main window, so Electron's default Save dialog is expected, but it was not seen.
+- ⌘S in the bb desktop app. Its menu has no plain ⌘S shortcut, so the key should reach the plugin, but this was not seen.
+- I3 was measured before the Save title got "(⌘S)" at its end.
+
 ## History rewrite — 2026-09-14
 
 All commits were rewritten to correct their author identity and signature. Their content did not change, but their IDs did.

@@ -20,16 +20,18 @@ The image shows a synthetic sample file: 100,000 rows × 20 columns, 15 MB. The 
 - **Sort:** click the arrow in a column name for ascending, descending, then off. Shift+click adds a column as the next sort level. The Sort panel sets the levels and their order.
 - **Columns:** show or hide each column. Drag a column edge to resize it. Double-click the edge for the automatic width.
 - **Select and copy, as in a spreadsheet:** cells, rows, or columns. Copy gives tab-separated text, with or without the column names.
+- **Save:** downloads the rows you see (search, filters, and sort applied) and the shown columns as a UTF-8 CSV file.
 - **Go to row:** moves a row number to the top and marks it.
 
 ## Keys
 
-In Grid view. ⌘F and ⌘G work anywhere in the plugin. The other keys work after you click a cell.
+In Grid view. ⌘F, ⌘G, and ⌘S work anywhere in the plugin. The other keys work after you click a cell.
 
 | Key | Action |
 |---|---|
 | ⌘F / Ctrl+F | Focus Search |
 | ⌘G / Ctrl+G | Focus Go to row |
+| ⌘S / Ctrl+S | Save the rows you see as a CSV file |
 | Arrows / Shift+arrows | Move the active cell / extend the selection |
 | ⌘A / Ctrl+A | Select all |
 | ⌘C / Ctrl+C | Copy the selection |
@@ -67,7 +69,7 @@ bb plugin reload dsv       # rebuild and reload the installed plugin
 - Read only: no editing and no saving.
 - The file loads once. It does not reload when the file changes on disk.
 - Filters combine with AND only. No regular expressions.
-- No export of filtered rows. Copy works.
+- Save writes a new CSV download. It does not change the original file.
 - Sort, column widths, and hidden columns reset when the tab closes.
 - `NA`, `null`, and thousands separators stay text. Time-zone offsets in dates are ignored.
 - The encoding is not detected. Pick it in Format.

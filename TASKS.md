@@ -77,3 +77,7 @@ Chunk size: one plan chunk. 3 chunks. Stop if a chunk is red.
       fresh clone: `bb plugin build` works with no `npm install` · the header reason note stays (user's choice)
 - [x] Author and signature fix (user's request, 2026-09-14): all commits rewritten with the `laminko` author and signed with the personal key; commit IDs changed
 - [x] GitHub repo deleted and created again by the user (2026-09-14), pushed over `github.com-lmk` → 14 of 14 commits `laminko` with a `valid` signature · old commit IDs return HTTP 422 · contributors: `laminko` only
+- [x] 0.8.0 Save button: download the current view as CSV (branch `feat/save-view`, user's choice) → `tsc` exit 0 · A1 50 of 50 · `dsv@0.8.0 running`
+      I3 pass · W1 saved file = "Copy data with field names", 10,093 lines × 19 fields · W2 193 ms for 100,000 rows · W3 no names line with Header off · desktop app not tested
+- [x] 0.8.0 ⌘S / Ctrl+S clicks Save (user's request, 2026-09-15) → `tsc` exit 0 · A1 50 of 50 · `dsv@0.8.0 running` · I4 and K5–K8: 5 of 5 pass · K5 10,093 lines in 51 ms · K7 0 downloads in Code view · desktop app not tested
+- [x] 0.8.0 README screenshot with the Save button → 2,228 × 1,544 px · P1 0 · P2 0 · P3 0 of 3,430 points · 0 metadata chunks

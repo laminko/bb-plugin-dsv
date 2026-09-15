@@ -511,6 +511,9 @@ export function decode(bytes: Uint8Array, label: string): { text: string; bad: n
   return { text, bad };
 }
 
-/** Spreadsheet clipboard text: a tab between cells, a line feed between rows. A cell with a tab, a line break, or `"` is quoted, with `"` doubled. */
-export const toTsv = (rows: string[][]) =>
-  rows.map((r) => r.map((v) => (/[\t\n\r"]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v)).join("\t")).join("\n");
+/** Delimited text: `d` between cells, a line feed between rows. A cell with `d`, a line break, or `"` is quoted, with `"` doubled. */
+export const toDelimited = (rows: string[][], d: string) =>
+  rows.map((r) => r.map((v) => (v.includes(d) || /[\n\r"]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v)).join(d)).join("\n");
+
+/** Spreadsheet clipboard text (TSV). */
+export const toTsv = (rows: string[][]) => toDelimited(rows, "\t");

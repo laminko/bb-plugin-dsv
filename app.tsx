@@ -15,7 +15,7 @@ import {
 } from "react";
 import {
   arity, bounds, cells, decode, DELIMITERS, detectDelimiter, detectHeader, ENCODINGS, family, floorIndex, FORMAT, OPS, parse, query,
-  recordDelimiter, sortHits, step, toTable, toTsv,
+  recordDelimiter, sortHits, step, toDelimited, toTable, toTsv,
   type Dir, type Filter, type Format, type Op, type Sel, type SortKey, type Table,
 } from "./logic.ts";
 
@@ -37,10 +37,10 @@ const MIN_W = 40; // narrowest column a drag can make
 const MAC = /Mac|iPhone|iPad/.test(navigator.userAgent);
 const COPY_KEY = "dsv.copyDefault"; // localStorage: what ⌘C copies, "data" or "names"
 const ARROWS: Record<string, [number, number] | undefined> = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
-// ⌘F / Ctrl+F and ⌘G / Ctrl+G: the box each key focuses.
-const FIND_KEYS: Record<string, string | undefined> = { f: 'input[type="search"]', g: 'input[aria-label="Go to row"]' };
+// ⌘F / Ctrl+F and ⌘G / Ctrl+G: the box each key focuses. ⌘S / Ctrl+S: the button it clicks.
+const MOD_KEYS: Record<string, string | undefined> = { f: 'input[type="search"]', g: 'input[aria-label="Go to row"]', s: "button[data-dsv-save]" };
 
-// Icons "clipboard", "paintbrush", "filter", "sort", "table-cells", and "code": Font Awesome Free 6.7.2 by Fonticons, Inc.
+// Icons "clipboard", "paintbrush", "filter", "sort", "floppy-disk", "table-cells", and "code": Font Awesome Free 6.7.2 by Fonticons, Inc.
 // License CC BY 4.0, https://fontawesome.com/license/free
 const ICONS = {
   clipboard: {
@@ -62,6 +62,11 @@ const ICONS = {
     name: "Sort",
     box: "0 0 320 512",
     d: "M137.4 41.4c12.5-12.5 32.8-12.5 45.3 0l128 128c9.2 9.2 11.9 22.9 6.9 34.9s-16.6 19.8-29.6 19.8L32 224c-12.9 0-24.6-7.8-29.6-19.8s-2.2-25.7 6.9-34.9l128-128zm0 429.3l-128-128c-9.2-9.2-11.9-22.9-6.9-34.9s16.6-19.8 29.6-19.8l256 0c12.9 0 24.6 7.8 29.6 19.8s2.2 25.7-6.9 34.9l-128 128c-12.5 12.5-32.8 12.5-45.3 0z",
+  },
+  save: {
+    name: "Save",
+    box: "0 0 448 512",
+    d: "M64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-242.7c0-17-6.7-33.3-18.7-45.3L352 50.7C340 38.7 323.7 32 306.7 32L64 32zm0 96c0-17.7 14.3-32 32-32l192 0c17.7 0 32 14.3 32 32l0 64c0 17.7-14.3 32-32 32L96 224c-17.7 0-32-14.3-32-32l0-64zM224 288a64 64 0 1 1 0 128 64 64 0 1 1 0-128z",
   },
   grid: {
     name: "Grid",
@@ -179,16 +184,18 @@ function DsvOpener({ path, source }: PluginFileOpenerProps) {
   return (
     <div
       className="flex h-full min-h-0 flex-col bg-background text-sm text-foreground"
-      // ⌘F / Ctrl+F focuses Search, ⌘G / Ctrl+G focuses Go to row: in Grid view, while the focus is in this tab.
+      // ⌘F / Ctrl+F focuses Search, ⌘G / Ctrl+G focuses Go to row, ⌘S / Ctrl+S clicks Save: in Grid view, while the focus is in this tab.
       onKeyDown={(e) => {
         if (view !== "grid" || !(e.metaKey || e.ctrlKey) || e.altKey || e.shiftKey) return;
-        const target = FIND_KEYS[e.key.toLowerCase()];
-        const input = target ? e.currentTarget.querySelector<HTMLInputElement>(target) : null;
-        if (!input) return;
+        const target = MOD_KEYS[e.key.toLowerCase()];
+        const el = target ? e.currentTarget.querySelector<HTMLElement>(target) : null;
+        if (!el) return;
         e.preventDefault();
         e.stopPropagation();
-        input.focus();
-        input.select();
+        if (el instanceof HTMLInputElement) {
+          el.focus();
+          el.select();
+        } else if (el instanceof HTMLButtonElement && !el.disabled) el.click();
       }}
     >
       <div className="flex flex-wrap items-center gap-2 border-b border-border px-2 py-1.5">
@@ -268,7 +275,13 @@ function DsvOpener({ path, source }: PluginFileOpenerProps) {
           {/* Hidden, not unmounted, in code view: search, filters, and columns survive the toggle. */}
           <div className={view === "code" ? "hidden" : "flex min-h-0 flex-1 flex-col"}>
             {/* A new delimiter, header, or format choice changes the columns or their types, so the grid state starts over. */}
-            <Grid key={`${delim}|${header}|${quote}|${format.decimal}|${format.order}|${encoding}`} table={table} note={note} />
+            <Grid
+              key={`${delim}|${header}|${quote}|${format.decimal}|${format.order}|${encoding}`}
+              table={table}
+              note={note}
+              header={header}
+              saveName={`${path.slice(path.lastIndexOf("/") + 1).replace(/\.[^.]*$/, "")}.view.csv`}
+            />
           </div>
         </>
       )}
@@ -279,7 +292,7 @@ function DsvOpener({ path, source }: PluginFileOpenerProps) {
 const arrow = (d: Dir) => (d === "asc" ? "↑" : "↓");
 const blank = (t: Table, col: number): Filter => ({ col, op: OPS[family(t.dtypes[col] ?? "string")][0][0], a: "", b: "" });
 
-function Grid({ table, note }: { table: Table; note: string }) {
+function Grid({ table, note, header, saveName }: { table: Table; note: string; header: boolean; saveName: string }) {
   const [search, setSearch] = useState("");
   const [scope, setScope] = useState<number[]>([]); // empty = all columns
   const [filters, setFilters] = useState<Filter[]>([]);
@@ -369,6 +382,19 @@ function Grid({ table, note }: { table: Table; note: string }) {
   const setCopyKey = (v: string) => {
     localStorage.setItem(COPY_KEY, v);
     setCopyKeyState(v === "names" ? "names" : "data");
+  };
+
+  // Save: the rows and columns on screen, in their order, as a CSV download.
+  // The column names go first only when the file has a header. The BOM makes Excel read UTF-8.
+  const save = () => {
+    const out = hits.map((i) => cols.map((c) => table.rows[i][c] ?? ""));
+    if (header) out.unshift(cols.map((c) => table.names[c]));
+    const url = URL.createObjectURL(new Blob(["﻿", toDelimited(out, ",")], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = saveName;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 10_000);
   };
 
   // The row and column under a point on screen, held to the grid's edges.
@@ -554,6 +580,10 @@ function Grid({ table, note }: { table: Table; note: string }) {
             />
           </div>
         </Popover>
+        <button type="button" data-dsv-save title={`Save the rows you see as a CSV file (${MAC ? "⌘S" : "Ctrl+S"})`} className={BUTTON} disabled={!cols.length} onClick={save}>
+          <Icon name="save" />
+          Save
+        </button>
         <form
           onSubmit={(e) => {
             e.preventDefault();
