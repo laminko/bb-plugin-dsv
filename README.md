@@ -2,9 +2,9 @@
 
 Opens CSV, TSV, and other delimited files as a typed, searchable, filterable grid.
 
-![DSV Table showing a sample CSV file with 100,000 rows and 20 columns, and the Viewer pane with the record of row 1](screenshot.png)
+![DSV Table showing a sample CSV file with 100,000 rows and 20 columns, and the Viewer pane with the record of row 1 as a read-only form](screenshot.png)
 
-The image shows a synthetic sample file: 100,000 rows × 20 columns, 15 MB. The names, cities, and `@example.com` emails are not real. The Viewer pane on the right shows row 1 on the Record tab.
+The image shows a synthetic sample file: 100,000 rows × 20 columns, 15 MB. The names, cities, and `@example.com` emails are not real. The Viewer pane on the right shows row 1 on the Record tab, as a read-only form.
 
 ## Features
 
@@ -21,7 +21,7 @@ The image shows a synthetic sample file: 100,000 rows × 20 columns, 15 MB. The 
 - **Columns:** show or hide each column. Drag a column edge to resize it. Double-click the edge to fit the column to its content: the longest values in the rows you see, and the column name.
 - **Select and copy, as in a spreadsheet:** cells, rows, or columns. Copy gives tab-separated text, with or without the column names.
 - **Save:** downloads the rows you see (search, filters, and sort applied) and the shown columns as a UTF-8 CSV file.
-- **Viewer:** a pane on the right of the grid or below it. A switch in the pane moves it. The plugin remembers the side. The Cell tab shows the whole value of the active cell, with its line breaks and character count. The Record tab shows the active row, one line per column. Its First, Previous, Next, and Last buttons move through the rows you see.
+- **Viewer:** a pane on the right of the grid or below it. A switch in the pane moves it. The plugin remembers the side. The Cell tab shows the whole value of the active cell, with its line breaks and character count. The Record tab shows the active row as a read-only form: a label and a boxed value for each column. Its First, Previous, Next, and Last buttons move through the rows you see.
 - **Go to row:** moves a row number to the top, marks it, and makes it the active row.
 
 ## Keys
