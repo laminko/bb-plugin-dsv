@@ -1,5 +1,60 @@
 # CHANGELOG — bb-plugin-dsv
 
+## 0.9.1 — 2026-09-16
+
+Plan: "Proposal v1.7.1" and its 3 addenda in `thr_huv4udkmb8/csv-plugin-plan.md`. The user approved it with `go, here` and chose a remembered side. Built in thread thr_zg2iba5z4v. Branch `fix/viewer-layout`.
+
+### Fixed
+
+- You can drag and double-click the last column edge with the grid scrolled to the far right. The scroll content has 16 px of room after the last column. Before, bb's overlay scrollbar covered the right 14 px of the grid, and the edge was under it.
+- The `#` header cell stays on top when the grid scrolls sideways. Before, the column headers showed over it.
+
+### Added
+
+- A switch in the Viewer pane moves the pane below the grid, and back. Below, the grid gets the full width, and the pane takes 40% of the height.
+- The switch shows the `table-columns` icon, turned 90° when it would move the pane below. Its title and label name the side it moves the pane to.
+- The side is saved in `localStorage` (`dsv.viewerSide`), like the ⌘C choice. A new tab opens the pane on the saved side.
+
+### Changed
+
+- `screenshot.png` shows the Viewer pane on the right, on the Record tab with row 1 active. It is a clip of the dsv plugin only, in the same 2,228 × 1,544 px frame.
+- `README.md`: the Viewer bullet, the image text, and the limits.
+
+### Verified
+
+| # | Check | Target | Measured |
+|---|---|---|---|
+| A1 | tests | 53 of 53 | 53 of 53 |
+| T1 | `tsc` | exit 0 | exit 0 |
+| E1 | scrolled to the far right: pixels of the last edge that a click reaches | 6 of 6 (was 0 of 6) | 6 of 6 |
+| E2 | a real double-click on the `note` edge there | the fit width ± 1 px | 216 → 157 px |
+| E3 | real drags of the `note` edge | the drag works | −40 px and +12 px, each exact |
+| H5 | scrolled 150 px: points in the `#` header cell that hit another dsv element | 0 of 75 (was 75 of 75) | 0 of 75; 5 of 75 hit bb's panel handle |
+| F0–F5 | the fit checks of 0.9.0, real double-clicks on all 20 columns | pass | 6 of 6; 0 of 20 dispatched events |
+| L1 | open the pane | right, 360 px | right, 360 px; grid 199 of 559 px |
+| L2 | click the switch | below; full width; 40% high | grid 559 px wide; pane 273 of 682 px high |
+| L3 | switch below and back, with a search, a sort, a selection, and a scroll | 4 of 4 unchanged each time | 4 of 4 and 4 of 4; the Record tab stays |
+| L4 | the switch button | 1 `<svg>`; title and `aria-label` name the next side | pass on both sides; the icon turns |
+| L5 | switch, reload, open; 2 times | the saved side: 2 of 2 | 2 of 2 |
+| V1–V4, R1–R8, I5 | the 0.9.0 checks, pane on the right | 18 of 18 | 18 of 18 |
+| V1–V4, R1–R8, I5 | the 0.9.0 checks, pane below | 18 of 18 | 18 of 18; the pane was below in 5 of 5 open views |
+| P1 | pane below, 100,000 rows | A3 < 300 ms; A4 < 60 | 35 ms; 24 rows |
+| P2 | Last → paint, pane below | < 300 ms | 17 ms |
+| A2 / A3 / A4 | pane-right run; pane-below run | < 2 s / < 300 ms / < 60 | 255–631 ms / 65 ms / 34; 191–397 ms / 37 ms / 34 |
+| S2 | the screenshot | the pane and the Record buttons show | pane 360 px on the right; Record tab; `Record 1 of 100,000`; 20 lines; 4 buttons |
+| P1–P3 (image) | the screenshot shows the dsv plugin only | 0 / 0 / 0 | 0 of 75 outside texts / 0 thread IDs / 0 of 3,430 points |
+| P5 | PNG metadata | 0 chunks | 0 (IHDR, 141 IDAT, IEND) |
+| P4 | the user reviews the image | approved | approved |
+
+How measured: headless Chrome (port 9333) on bb's web UI, real mouse and key input through CDP. Scripts in `thr_zg2iba5z4v`: `e-check.mjs`, `f-check.mjs`, `l-check.mjs`, `v-check.mjs` (`SIDE=right` and `SIDE=below`), `readme-shot2.mjs`.
+E3: the planned +40 px drag ends outside the 1,440 px window, so the drags were −40 px and +12 px.
+The first `SIDE=below` run kept the pane on the right, because the script did not call its switch helper. The app code did not change before the second run.
+
+### Not tested
+
+- The bb desktop app.
+- The dark theme, and keyboard-only use of the switch.
+
 ## 0.9.0 — 2026-09-15
 
 Plan: "Proposal v1.7" and "Decisions v1.7" in `thr_huv4udkmb8/csv-plugin-plan.md`. The user approved it (`go`, defaults 1–5) in thread thr_nuuxhn6nnb. Built in thread thr_zg2iba5z4v. Branch `feat/viewer`.

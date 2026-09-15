@@ -112,4 +112,4 @@ Chunk size: one plan chunk. 4 chunks. Stop if a chunk is red. Chunk 3 stops for 
       Run 1 with `SIDE=below` kept the pane on the right: my script did not call its switch helper. Script fixed, app not changed; run 2: 18 of 18
 - [x] 3. `README.md` (Viewer: right or below, side remembered; image text; limits) and `screenshot.png` → S2 pass · P1 0 of 75 · P2 0 · P3 0 of 3,430 · P5 0 metadata chunks · P4 approved by the user
       2,228 × 1,544 px, 572,078 bytes · a clip of the dsv plugin only (5 px of bb's panel handle cut) · the pane on the right, Record tab, row 1 · script `thr_zg2iba5z4v/readme-shot2.mjs`
-- [ ] 4. `CHANGELOG.md` 0.9.1, `TASKS.md`, "Result v1.7.1" in the plan. No merge, no push.
+- [x] 4. `CHANGELOG.md` 0.9.1, `TASKS.md`, "Result v1.7.1" in the plan → A1 53 of 53 · T1 `tsc` exit 0 · no merge, no push
