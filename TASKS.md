@@ -91,5 +91,8 @@ Chunk size: one plan chunk. 4 chunks. Stop if a chunk is red.
 - [x] 2. `app.tsx` fit on double-click, `package.json` 0.9.0 → T1 `tsc` exit 0 · A1 53 of 53 · `dsv@0.9.0 running`
       F0 20 of 20 automatic widths unchanged · F1 0 of 400 cut, 0 columns capped · F2 0 of 20 · F3 17 ms (`note`) · F4 170 ≤ 176 px · F5 drag +60 px, fit again 176 px
       `note`: its edge is under the grid scrollbar, so a real click cannot reach it; the check dispatched `dblclick` there. Script `thr_zg2iba5z4v/f-check.mjs`
-- [ ] 3. `app.tsx` Viewer pane (Cell and Record tabs, record buttons) → T1, reload, V1–V4, R1–R8, P1, P2, A2–A4
+- [x] 3. `app.tsx` Viewer pane (Cell and Record tabs, record buttons) → T1 `tsc` exit 0 · A1 53 of 53 · `dsv@0.9.0 running` · `v-check.mjs` 18 of 18
+      V1 pass · V2 10 of 10 · V3 5 of 5 · V4 4 of 4 open, 4 of 4 closed · R1 20 of 20 · R2 19 lines · R3 pass · R4 4 of 4 · R5 4 of 4 · R6 4 of 4 · R7 `Record 10,092 of 10,092` · R8 pass
+      P1 A3 40 ms, A4 34 · P2 19 ms · A2 195–489 ms (file request → paint, 3 loads) · A3 69 ms worst of 10 · A4 34 rows max of 47 positions
+      Run 1 stopped at R2: my script clicked the `name` sort button outside the 199 px grid. Script fixed, app not changed; run 2: 18 of 18
 - [ ] 4. `README.md`, `CHANGELOG.md` 0.9.0, `TASKS.md`. No merge, no push.

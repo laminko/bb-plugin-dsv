@@ -1,5 +1,5 @@
 // Opens delimited text (csv, tsv, …) as a typed grid: search, AND filters, multi-column sort,
-// column picker, go to row. "Code" shows the raw text in bb's source viewer. Pure logic is in logic.ts.
+// column picker, go to row, and a Viewer pane. "Code" shows the raw text in bb's source viewer. Pure logic is in logic.ts.
 import {
   definePluginApp,
   experimental_SourceCode as SourceCode,
@@ -40,7 +40,8 @@ const ARROWS: Record<string, [number, number] | undefined> = { ArrowUp: [-1, 0],
 // ⌘F / Ctrl+F and ⌘G / Ctrl+G: the box each key focuses. ⌘S / Ctrl+S: the button it clicks.
 const MOD_KEYS: Record<string, string | undefined> = { f: 'input[type="search"]', g: 'input[aria-label="Go to row"]', s: "button[data-dsv-save]" };
 
-// Icons "clipboard", "paintbrush", "filter", "sort", "floppy-disk", "table-cells", and "code": Font Awesome Free 6.7.2 by Fonticons, Inc.
+// Icons "clipboard", "paintbrush", "filter", "sort", "floppy-disk", "table-cells", "code", "table-columns", "backward-step",
+// "angle-left", "angle-right", and "forward-step": Font Awesome Free 6.7.2 by Fonticons, Inc.
 // License CC BY 4.0, https://fontawesome.com/license/free
 const ICONS = {
   clipboard: {
@@ -77,6 +78,31 @@ const ICONS = {
     name: "Code",
     box: "0 0 640 512",
     d: "M392.8 1.2c-17-4.9-34.7 5-39.6 22l-128 448c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l128-448c4.9-17-5-34.7-22-39.6zm80.6 120.1c-12.5 12.5-12.5 32.8 0 45.3L562.7 256l-89.4 89.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l112-112c12.5-12.5 12.5-32.8 0-45.3l-112-112c-12.5-12.5-32.8-12.5-45.3 0zm-306.7 0c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3l112 112c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l89.4-89.4c12.5-12.5 12.5-32.8 0-45.3z",
+  },
+  viewer: {
+    name: "Viewer",
+    box: "0 0 512 512",
+    d: "M0 96C0 60.7 28.7 32 64 32l384 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96zm64 64l0 256 160 0 0-256L64 160zm384 0l-160 0 0 256 160 0 0-256z",
+  },
+  first: {
+    name: "First record",
+    box: "0 0 320 512",
+    d: "M267.5 440.6c9.5 7.9 22.8 9.7 34.1 4.4s18.4-16.6 18.4-29l0-320c0-12.4-7.2-23.7-18.4-29s-24.5-3.6-34.1 4.4l-192 160L64 241 64 96c0-17.7-14.3-32-32-32S0 78.3 0 96L0 416c0 17.7 14.3 32 32 32s32-14.3 32-32l0-145 11.5 9.6 192 160z",
+  },
+  previous: {
+    name: "Previous record",
+    box: "0 0 320 512",
+    d: "M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z",
+  },
+  next: {
+    name: "Next record",
+    box: "0 0 320 512",
+    d: "M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z",
+  },
+  last: {
+    name: "Last record",
+    box: "0 0 320 512",
+    d: "M52.5 440.6c-9.5 7.9-22.8 9.7-34.1 4.4S0 428.4 0 416L0 96C0 83.6 7.2 72.3 18.4 67s24.5-3.6 34.1 4.4l192 160L256 241l0-145c0-17.7 14.3-32 32-32s32 14.3 32 32l0 320c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-145-11.5 9.6-192 160z",
   },
 } as const;
 
@@ -301,6 +327,7 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
   const [custom, setCustom] = useState<Record<number, number>>({}); // column → width from a drag
   const [copyKey, setCopyKeyState] = useState(() => (localStorage.getItem(COPY_KEY) === "names" ? "names" : "data"));
   const [sorts, setSorts] = useState<SortKey[]>([]); // sort levels, level 1 first
+  const [viewer, setViewer] = useState<{ open: boolean; tab: Tab }>({ open: false, tab: "cell" }); // the Viewer pane
   const hits = useMemo(() => {
     const found = query(table, search, scope, filters);
     return sorts.length ? sortHits(table, found, sorts) : found;
@@ -348,14 +375,17 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
   const last = Math.min(hits.length, Math.ceil((top + height) / ROW_H) + OVERSCAN);
   const cell = "shrink-0 truncate px-2";
 
-  // Go to row N: row N moves to the top and is marked.
+  // Go to row N: row N moves to the top and is marked. Its cell in the active column becomes the active cell.
   // A row that the search or filters hide is only reported in the status bar.
   // A sort puts the hits out of file order, so this is a scan, not a binary search.
   const find = (row: number) => hits.indexOf(row);
   const go = (n: number) => {
     setJump(n);
     const k = find(n - 1);
-    if (k >= 0) box.current!.scrollTop = k * ROW_H;
+    if (k < 0) return;
+    box.current!.scrollTop = k * ROW_H;
+    const c = sel?.ac ?? 0;
+    if (cols.length) setSel({ ar: k, ac: c, fr: k, fc: c });
   };
   const notice = jump === null
     ? ""
@@ -414,6 +444,11 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
     else if (y + ROW_H > el.scrollTop + el.clientHeight) el.scrollTop = y + ROW_H - el.clientHeight;
     if (xs[c] - GUTTER < el.scrollLeft) el.scrollLeft = xs[c] - GUTTER;
     else if (xs[c + 1] > el.scrollLeft + el.clientWidth) el.scrollLeft = xs[c + 1] - el.clientWidth;
+  };
+  // Make one cell the active cell and scroll to it. The Viewer's record buttons and lines use this.
+  const pick = (r: number, c: number) => {
+    setSel({ ar: r, ac: c, fr: r, fc: c });
+    reveal(r, c);
   };
 
   // Mouse, as in Excel: a press on a cell, a "#" cell (whole rows), or a column
@@ -603,6 +638,16 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
           <Icon name="save" />
           Save
         </button>
+        <button
+          type="button"
+          title="Show or hide the pane with the whole cell value and the record"
+          aria-pressed={viewer.open}
+          className={`${BUTTON} ${viewer.open ? "bg-accent text-accent-foreground" : ""}`}
+          onClick={() => setViewer({ ...viewer, open: !viewer.open })}
+        >
+          <Icon name="viewer" />
+          Viewer
+        </button>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -630,104 +675,110 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
           onRemove={() => setFilters(filters.filter((_, j) => j !== i))}
         />
       ))}
-      <div
-        ref={box}
-        data-dsv-grid=""
-        tabIndex={0}
-        className="min-h-0 flex-1 select-none overflow-auto outline-none"
-        onScroll={(e) => setTop(e.currentTarget.scrollTop)}
-        onMouseDown={onMouseDown}
-        onKeyDown={onKeyDown}
-      >
-        <div className="relative" style={{ width: total, height: (hits.length + 1) * ROW_H, lineHeight: `${ROW_H}px` }}>
-          <div className="sticky top-0 z-10 flex border-b-2 border-border bg-muted font-semibold" style={{ height: ROW_H }}>
-            <div
-              title="Row number. Click to select all."
-              className={`${cell} sticky left-0 bg-muted text-right text-muted-foreground`}
-              style={{ width: GUTTER }}
-            >
-              #
+      {/* The grid and the Viewer pane side by side. The grid stays mounted, so the pane keeps its scroll and selection. */}
+      <div className="flex min-h-0 flex-1">
+        <div
+          ref={box}
+          data-dsv-grid=""
+          tabIndex={0}
+          className="min-h-0 min-w-0 flex-1 select-none overflow-auto outline-none"
+          onScroll={(e) => setTop(e.currentTarget.scrollTop)}
+          onMouseDown={onMouseDown}
+          onKeyDown={onKeyDown}
+        >
+          <div className="relative" style={{ width: total, height: (hits.length + 1) * ROW_H, lineHeight: `${ROW_H}px` }}>
+            <div className="sticky top-0 z-10 flex border-b-2 border-border bg-muted font-semibold" style={{ height: ROW_H }}>
+              <div
+                title="Row number. Click to select all."
+                className={`${cell} sticky left-0 bg-muted text-right text-muted-foreground`}
+                style={{ width: GUTTER }}
+              >
+                #
+              </div>
+              {cols.map((c, ci) => {
+                const level = sorts.findIndex((k) => k.col === c);
+                const dir = level < 0 ? null : sorts[level].dir;
+                return (
+                  <div
+                    key={c}
+                    role="columnheader"
+                    title={`${table.names[c]} (${table.dtypes[c]})`}
+                    // ARIA allows one sorted header at a time, so only level 1 gets aria-sort.
+                    aria-sort={level !== 0 ? undefined : dir === "asc" ? "ascending" : "descending"}
+                    className={`${cell} relative flex items-center gap-1 ${numeric(c) ? "justify-end" : ""} ${ci >= sLeft && ci <= sRight ? "text-primary" : ""}`}
+                    style={{ width: w(c) }}
+                  >
+                    <span className="truncate">{table.names[c]}</span>
+                    <span className="rounded bg-background px-1 text-[10px] leading-4 text-muted-foreground">{table.dtypes[c]}</span>
+                    <button
+                      type="button"
+                      data-sort=""
+                      aria-label={`Sort by ${table.names[c]}`}
+                      title={`Sort: ${!dir ? "ascending" : dir === "asc" ? "descending" : "file order"}. Shift+click to sort by several columns.`}
+                      className={`mr-1 shrink-0 text-xs ${dir ? "text-primary" : "text-muted-foreground/50 hover:text-foreground"}`}
+                      onClick={(e) => sortBy(c, e.shiftKey)}
+                    >
+                      {!dir ? "↕" : `${arrow(dir)}${sorts.length > 1 ? level + 1 : ""}`}
+                    </button>
+                    <div
+                      data-resize=""
+                      title="Drag to resize. Double-click to fit the content."
+                      className="absolute right-0 top-0 h-full w-1.5 cursor-col-resize hover:bg-primary"
+                      onPointerDown={(e) => resize(e, c)}
+                      onDoubleClick={() => fit(c)}
+                    />
+                  </div>
+                );
+              })}
             </div>
-            {cols.map((c, ci) => {
-              const level = sorts.findIndex((k) => k.col === c);
-              const dir = level < 0 ? null : sorts[level].dir;
+            {hits.slice(first, last).map((ri, k) => {
+              const r = table.rows[ri];
+              const pos = first + k;
+              const marked = ri + 1 === jump;
+              const inRows = pos >= sTop && pos <= sBottom;
               return (
                 <div
-                  key={c}
-                  role="columnheader"
-                  title={`${table.names[c]} (${table.dtypes[c]})`}
-                  // ARIA allows one sorted header at a time, so only level 1 gets aria-sort.
-                  aria-sort={level !== 0 ? undefined : dir === "asc" ? "ascending" : "descending"}
-                  className={`${cell} relative flex items-center gap-1 ${numeric(c) ? "justify-end" : ""} ${ci >= sLeft && ci <= sRight ? "text-primary" : ""}`}
-                  style={{ width: w(c) }}
+                  key={ri}
+                  data-row=""
+                  aria-current={marked || undefined}
+                  className={`absolute left-0 flex border-b border-border ${marked ? "bg-accent text-accent-foreground" : ""}`}
+                  style={{ top: (pos + 1) * ROW_H, height: ROW_H, width: total }}
                 >
-                  <span className="truncate">{table.names[c]}</span>
-                  <span className="rounded bg-background px-1 text-[10px] leading-4 text-muted-foreground">{table.dtypes[c]}</span>
-                  <button
-                    type="button"
-                    data-sort=""
-                    aria-label={`Sort by ${table.names[c]}`}
-                    title={`Sort: ${!dir ? "ascending" : dir === "asc" ? "descending" : "file order"}. Shift+click to sort by several columns.`}
-                    className={`mr-1 shrink-0 text-xs ${dir ? "text-primary" : "text-muted-foreground/50 hover:text-foreground"}`}
-                    onClick={(e) => sortBy(c, e.shiftKey)}
-                  >
-                    {!dir ? "↕" : `${arrow(dir)}${sorts.length > 1 ? level + 1 : ""}`}
-                  </button>
                   <div
-                    data-resize=""
-                    title="Drag to resize. Double-click to fit the content."
-                    className="absolute right-0 top-0 h-full w-1.5 cursor-col-resize hover:bg-primary"
-                    onPointerDown={(e) => resize(e, c)}
-                    onDoubleClick={() => fit(c)}
-                  />
+                    className={`${cell} sticky left-0 z-[1] text-right ${marked ? "bg-accent" : "bg-background"} ${inRows ? "font-semibold text-primary" : marked ? "" : "text-muted-foreground"}`}
+                    style={{ width: GUTTER }}
+                  >
+                    {ri + 1}
+                  </div>
+                  {cols.map((c, ci) => {
+                    const on = inRows && ci >= sLeft && ci <= sRight;
+                    const active = sel !== null && pos === sel.ar && ci === sel.ac;
+                    return (
+                      <div
+                        key={c}
+                        title={r[c]}
+                        className={`${cell} ${numeric(c) ? "text-right tabular-nums" : ""} ${on ? "bg-primary/10" : ""} ${active ? "outline-2 -outline-offset-2 outline-primary" : ""}`}
+                        style={{ width: w(c) }}
+                      >
+                        {r[c] ?? ""}
+                      </div>
+                    );
+                  })}
                 </div>
               );
             })}
-          </div>
-          {hits.slice(first, last).map((ri, k) => {
-            const r = table.rows[ri];
-            const pos = first + k;
-            const marked = ri + 1 === jump;
-            const inRows = pos >= sTop && pos <= sBottom;
-            return (
+            {sel && (
               <div
-                key={ri}
-                data-row=""
-                aria-current={marked || undefined}
-                className={`absolute left-0 flex border-b border-border ${marked ? "bg-accent text-accent-foreground" : ""}`}
-                style={{ top: (pos + 1) * ROW_H, height: ROW_H, width: total }}
-              >
-                <div
-                  className={`${cell} sticky left-0 z-[1] text-right ${marked ? "bg-accent" : "bg-background"} ${inRows ? "font-semibold text-primary" : marked ? "" : "text-muted-foreground"}`}
-                  style={{ width: GUTTER }}
-                >
-                  {ri + 1}
-                </div>
-                {cols.map((c, ci) => {
-                  const on = inRows && ci >= sLeft && ci <= sRight;
-                  const active = sel !== null && pos === sel.ar && ci === sel.ac;
-                  return (
-                    <div
-                      key={c}
-                      title={r[c]}
-                      className={`${cell} ${numeric(c) ? "text-right tabular-nums" : ""} ${on ? "bg-primary/10" : ""} ${active ? "outline-2 -outline-offset-2 outline-primary" : ""}`}
-                      style={{ width: w(c) }}
-                    >
-                      {r[c] ?? ""}
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })}
-          {sel && (
-            <div
-              data-range=""
-              className="pointer-events-none absolute border border-primary"
-              style={{ left: xs[sLeft], top: (sTop + 1) * ROW_H, width: xs[sRight + 1] - xs[sLeft], height: (sBottom - sTop + 1) * ROW_H }}
-            />
-          )}
+                data-range=""
+                className="pointer-events-none absolute border border-primary"
+                style={{ left: xs[sLeft], top: (sTop + 1) * ROW_H, width: xs[sRight + 1] - xs[sLeft], height: (sBottom - sTop + 1) * ROW_H }}
+              />
+            )}
+          </div>
         </div>
+        {viewer.open && (
+          <Viewer table={table} hits={hits} cols={cols} sel={sel} tab={viewer.tab} setTab={(tab) => setViewer({ open: true, tab })} pick={pick} />
+        )}
       </div>
       <div className="border-t border-border px-2 py-1 text-xs text-muted-foreground">
         {hits.length.toLocaleString()} of {table.rows.length.toLocaleString()} rows · {cols.length} of {table.names.length}{" "}
@@ -737,6 +788,115 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
         {notice && ` · ${notice}`}
       </div>
     </div>
+  );
+}
+
+type Tab = "cell" | "record";
+const TABS: [Tab, string][] = [["cell", "Cell"], ["record", "Record"]];
+const BADGE = "rounded bg-muted px-1 text-[10px] font-normal leading-4 text-muted-foreground";
+
+/**
+ * The Viewer pane. Cell: the whole value of the active cell. Record: the active row, one line per shown
+ * column, and buttons to the first, previous, next, and last row of the view. `pick` makes a cell active.
+ */
+function Viewer({ table, hits, cols, sel, tab, setTab, pick }: {
+  table: Table;
+  hits: number[];
+  cols: number[];
+  sel: Sel | null;
+  tab: Tab;
+  setTab: (t: Tab) => void;
+  pick: (r: number, c: number) => void;
+}) {
+  const n = hits.length;
+  const at = sel?.ar ?? -1;
+  const ac = sel?.ac ?? -1;
+  const row = sel && cols.length ? table.rows[hits[at]] : null;
+  const c = cols[ac] ?? 0;
+  const value = row?.[c] ?? "";
+  // [icon, the row it moves to, disabled]. With no active cell, First and Next go to row 1, Previous and Last to the last row.
+  const moves = [
+    ["first", 0, at === 0],
+    ["previous", sel ? at - 1 : n - 1, at === 0],
+    ["next", sel ? at + 1 : 0, at === n - 1],
+    ["last", n - 1, at === n - 1],
+  ] as const;
+  return (
+    <aside aria-label="Viewer" className="flex w-[360px] shrink-0 flex-col border-l border-border">
+      <div role="tablist" className="flex gap-1 border-b border-border px-2 py-1.5">
+        {TABS.map(([t, label]) => (
+          <button
+            key={t}
+            type="button"
+            role="tab"
+            aria-selected={tab === t}
+            onClick={() => setTab(t)}
+            className={`h-7 rounded-md px-2 ${tab === t ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted"}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <div className="min-h-0 flex-1 overflow-auto p-2">
+        {tab === "cell" ? (
+          !row ? (
+            <p className="text-muted-foreground">Click a cell to see its value.</p>
+          ) : (
+            <>
+              <div className="mb-1 flex items-center gap-1">
+                <span className="font-semibold">{table.names[c]}</span>
+                <span className={BADGE}>{table.dtypes[c]}</span>
+                <span className="ml-auto text-xs text-muted-foreground">row {(hits[at] + 1).toLocaleString()}</span>
+              </div>
+              <div data-value="" className="select-text whitespace-pre-wrap break-words rounded-md border border-border p-2">{value}</div>
+              <p className="mt-1 text-xs text-muted-foreground">{[...value].length.toLocaleString()} characters</p>
+            </>
+          )
+        ) : (
+          <>
+            <div className="mb-2 flex items-center gap-1">
+              {moves.map(([icon, r, off]) => (
+                <button
+                  key={icon}
+                  type="button"
+                  aria-label={ICONS[icon].name}
+                  title={ICONS[icon].name}
+                  className={BUTTON}
+                  disabled={!n || !cols.length || off}
+                  onClick={() => pick(r, Math.max(0, ac))}
+                >
+                  <Icon name={icon} />
+                </button>
+              ))}
+              <span className="ml-1 text-xs text-muted-foreground">{`Record ${sel ? (at + 1).toLocaleString() : "–"} of ${n.toLocaleString()}`}</span>
+            </div>
+            {!row ? (
+              <p className="text-muted-foreground">Click a cell to see its record.</p>
+            ) : (
+              cols.map((k, ci) => (
+                <button
+                  key={k}
+                  type="button"
+                  data-col={ci}
+                  title={`Show ${table.names[k]} in the Cell tab`}
+                  className={`flex w-full flex-col items-start gap-0.5 rounded-md px-1.5 py-1 text-left hover:bg-muted ${ci === ac ? "bg-muted" : ""}`}
+                  onClick={() => {
+                    pick(at, ci);
+                    setTab("cell");
+                  }}
+                >
+                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <span>{table.names[k]}</span>
+                    <span className={BADGE}>{table.dtypes[k]}</span>
+                  </span>
+                  <span className="line-clamp-6 whitespace-pre-wrap break-words">{row[k] ?? ""}</span>
+                </button>
+              ))
+            )}
+          </>
+        )}
+      </div>
+    </aside>
   );
 }
 
