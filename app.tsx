@@ -34,8 +34,11 @@ const ROW_H = 28;
 const OVERSCAN = 4;
 const GUTTER = 64;
 const MIN_W = 40; // narrowest column a drag can make
+// Room after the last column. bb's overlay scrollbar covers the grid's right 14 px, and the last column edge must stay clear of it.
+const EDGE_PAD = 16;
 const MAC = /Mac|iPhone|iPad/.test(navigator.userAgent);
 const COPY_KEY = "dsv.copyDefault"; // localStorage: what ⌘C copies, "data" or "names"
+const SIDE_KEY = "dsv.viewerSide"; // localStorage: where the Viewer pane sits, "right" or "below"
 const ARROWS: Record<string, [number, number] | undefined> = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
 // ⌘F / Ctrl+F and ⌘G / Ctrl+G: the box each key focuses. ⌘S / Ctrl+S: the button it clicks.
 const MOD_KEYS: Record<string, string | undefined> = { f: 'input[type="search"]', g: 'input[aria-label="Go to row"]', s: "button[data-dsv-save]" };
@@ -328,6 +331,11 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
   const [copyKey, setCopyKeyState] = useState(() => (localStorage.getItem(COPY_KEY) === "names" ? "names" : "data"));
   const [sorts, setSorts] = useState<SortKey[]>([]); // sort levels, level 1 first
   const [viewer, setViewer] = useState<{ open: boolean; tab: Tab }>({ open: false, tab: "cell" }); // the Viewer pane
+  const [side, setSideState] = useState<Side>(() => (localStorage.getItem(SIDE_KEY) === "below" ? "below" : "right"));
+  const setSide = (s: Side) => {
+    localStorage.setItem(SIDE_KEY, s);
+    setSideState(s);
+  };
   const hits = useMemo(() => {
     const found = query(table, search, scope, filters);
     return sorts.length ? sortHits(table, found, sorts) : found;
@@ -675,8 +683,8 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
           onRemove={() => setFilters(filters.filter((_, j) => j !== i))}
         />
       ))}
-      {/* The grid and the Viewer pane side by side. The grid stays mounted, so the pane keeps its scroll and selection. */}
-      <div className="flex min-h-0 flex-1">
+      {/* The grid and the Viewer pane, side by side or the pane below. The grid stays mounted, so it keeps its scroll and selection. */}
+      <div className={`flex min-h-0 flex-1 ${side === "below" ? "flex-col" : ""}`}>
         <div
           ref={box}
           data-dsv-grid=""
@@ -686,11 +694,11 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
           onMouseDown={onMouseDown}
           onKeyDown={onKeyDown}
         >
-          <div className="relative" style={{ width: total, height: (hits.length + 1) * ROW_H, lineHeight: `${ROW_H}px` }}>
+          <div className="relative" style={{ width: total + EDGE_PAD, height: (hits.length + 1) * ROW_H, lineHeight: `${ROW_H}px` }}>
             <div className="sticky top-0 z-10 flex border-b-2 border-border bg-muted font-semibold" style={{ height: ROW_H }}>
               <div
                 title="Row number. Click to select all."
-                className={`${cell} sticky left-0 bg-muted text-right text-muted-foreground`}
+                className={`${cell} sticky left-0 z-[1] bg-muted text-right text-muted-foreground`}
                 style={{ width: GUTTER }}
               >
                 #
@@ -742,7 +750,7 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
                   data-row=""
                   aria-current={marked || undefined}
                   className={`absolute left-0 flex border-b border-border ${marked ? "bg-accent text-accent-foreground" : ""}`}
-                  style={{ top: (pos + 1) * ROW_H, height: ROW_H, width: total }}
+                  style={{ top: (pos + 1) * ROW_H, height: ROW_H, width: total + EDGE_PAD }}
                 >
                   <div
                     className={`${cell} sticky left-0 z-[1] text-right ${marked ? "bg-accent" : "bg-background"} ${inRows ? "font-semibold text-primary" : marked ? "" : "text-muted-foreground"}`}
@@ -777,7 +785,7 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
           </div>
         </div>
         {viewer.open && (
-          <Viewer table={table} hits={hits} cols={cols} sel={sel} tab={viewer.tab} setTab={(tab) => setViewer({ open: true, tab })} pick={pick} />
+          <Viewer table={table} hits={hits} cols={cols} sel={sel} tab={viewer.tab} setTab={(tab) => setViewer({ open: true, tab })} pick={pick} side={side} setSide={setSide} />
         )}
       </div>
       <div className="border-t border-border px-2 py-1 text-xs text-muted-foreground">
@@ -792,14 +800,18 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
 }
 
 type Tab = "cell" | "record";
+type Side = "right" | "below";
 const TABS: [Tab, string][] = [["cell", "Cell"], ["record", "Record"]];
+// The switch label names the side it moves the pane to.
+const SIDES: Record<Side, string> = { right: "Move the pane below the grid", below: "Move the pane to the right" };
 const BADGE = "rounded bg-muted px-1 text-[10px] font-normal leading-4 text-muted-foreground";
 
 /**
- * The Viewer pane. Cell: the whole value of the active cell. Record: the active row, one line per shown
- * column, and buttons to the first, previous, next, and last row of the view. `pick` makes a cell active.
+ * The Viewer pane, on the right of the grid or below it (`side`). Cell: the whole value of the active cell.
+ * Record: the active row, one line per shown column, and buttons to the first, previous, next, and last
+ * row of the view. `pick` makes a cell active.
  */
-function Viewer({ table, hits, cols, sel, tab, setTab, pick }: {
+function Viewer({ table, hits, cols, sel, tab, setTab, pick, side, setSide }: {
   table: Table;
   hits: number[];
   cols: number[];
@@ -807,6 +819,8 @@ function Viewer({ table, hits, cols, sel, tab, setTab, pick }: {
   tab: Tab;
   setTab: (t: Tab) => void;
   pick: (r: number, c: number) => void;
+  side: Side;
+  setSide: (s: Side) => void;
 }) {
   const n = hits.length;
   const at = sel?.ar ?? -1;
@@ -822,20 +836,31 @@ function Viewer({ table, hits, cols, sel, tab, setTab, pick }: {
     ["last", n - 1, at === n - 1],
   ] as const;
   return (
-    <aside aria-label="Viewer" className="flex w-[360px] shrink-0 flex-col border-l border-border">
-      <div role="tablist" className="flex gap-1 border-b border-border px-2 py-1.5">
-        {TABS.map(([t, label]) => (
-          <button
-            key={t}
-            type="button"
-            role="tab"
-            aria-selected={tab === t}
-            onClick={() => setTab(t)}
-            className={`h-7 rounded-md px-2 ${tab === t ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted"}`}
-          >
-            {label}
-          </button>
-        ))}
+    <aside aria-label="Viewer" className={`flex shrink-0 flex-col border-border ${side === "right" ? "w-[360px] border-l" : "h-2/5 border-t"}`}>
+      <div className="flex items-center gap-1 border-b border-border px-2 py-1.5">
+        <div role="tablist" className="flex gap-1">
+          {TABS.map(([t, label]) => (
+            <button
+              key={t}
+              type="button"
+              role="tab"
+              aria-selected={tab === t}
+              onClick={() => setTab(t)}
+              className={`h-7 rounded-md px-2 ${tab === t ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted"}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          aria-label={SIDES[side]}
+          title={SIDES[side]}
+          className={`${BUTTON} ml-auto`}
+          onClick={() => setSide(side === "right" ? "below" : "right")}
+        >
+          <Icon name="viewer" className={`h-3.5 w-3.5 ${side === "right" ? "rotate-90" : ""}`} />
+        </button>
       </div>
       <div className="min-h-0 flex-1 overflow-auto p-2">
         {tab === "cell" ? (
@@ -873,25 +898,32 @@ function Viewer({ table, hits, cols, sel, tab, setTab, pick }: {
             {!row ? (
               <p className="text-muted-foreground">Click a cell to see its record.</p>
             ) : (
-              cols.map((k, ci) => (
-                <button
-                  key={k}
-                  type="button"
-                  data-col={ci}
-                  title={`Show ${table.names[k]} in the Cell tab`}
-                  className={`flex w-full flex-col items-start gap-0.5 rounded-md px-1.5 py-1 text-left hover:bg-muted ${ci === ac ? "bg-muted" : ""}`}
-                  onClick={() => {
-                    pick(at, ci);
-                    setTab("cell");
-                  }}
-                >
-                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <span>{table.names[k]}</span>
-                    <span className={BADGE}>{table.dtypes[k]}</span>
-                  </span>
-                  <span className="line-clamp-6 whitespace-pre-wrap break-words">{row[k] ?? ""}</span>
-                </button>
-              ))
+              // A read-only form: each line spans both columns as a subgrid, so the labels and the fields line up.
+              <div className="grid grid-cols-[fit-content(40%)_minmax(0,1fr)] gap-x-2 gap-y-1">
+                {cols.map((k, ci) => (
+                  <button
+                    key={k}
+                    type="button"
+                    data-col={ci}
+                    title={`Show ${table.names[k]} in the Cell tab`}
+                    className="group col-span-2 grid grid-cols-subgrid items-baseline text-left"
+                    onClick={() => {
+                      pick(at, ci);
+                      setTab("cell");
+                    }}
+                  >
+                    <span className="flex min-w-0 items-baseline justify-end gap-1 text-xs">
+                      <span className="truncate" title={table.names[k]}>{table.names[k]}</span>
+                      <span className="shrink-0 text-[10px] text-muted-foreground">{table.dtypes[k]}</span>
+                    </span>
+                    <span
+                      className={`line-clamp-6 whitespace-pre-wrap break-words rounded-md border bg-muted/40 px-2 py-1 group-hover:bg-muted ${ci === ac ? "border-primary" : "border-border"} ${family(table.dtypes[k]) === "number" ? "text-right tabular-nums" : ""}`}
+                    >
+                      {row[k] ?? ""}
+                    </span>
+                  </button>
+                ))}
+              </div>
             )}
           </>
         )}

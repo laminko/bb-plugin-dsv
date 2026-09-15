@@ -97,3 +97,32 @@ Chunk size: one plan chunk. 4 chunks. Stop if a chunk is red.
       Run 1 stopped at R2: my script clicked the `name` sort button outside the 199 px grid. Script fixed, app not changed; run 2: 18 of 18
 - [x] 4. `README.md` (fit tip, Viewer, Go to row, limits), `CHANGELOG.md` 0.9.0, `TASKS.md` → A1 53 of 53 · T1 `tsc` exit 0 · "Result v1.7" added to the plan
       0 of 2,000,000 sample cells have a line break, so that case is "not tested" · Chrome on port 9333 stopped, profile kept · no merge, no push
+
+## v1.7.1 (0.9.1)
+
+Plan: "Proposal v1.7.1" and its 3 addenda: README and screenshot, horizontal view, remembered side (approved `go, here`, 2026-09-16; the user chose "Build here, remembered"). Thread: thr_zg2iba5z4v. Branch `fix/viewer-layout`.
+Chunk size: one plan chunk. 4 chunks. Stop if a chunk is red. Chunk 3 stops for the user's review of the screenshot.
+
+- [x] 1. `app.tsx` fix 1 (16 px after the last column), fix 2 (`#` header cell on top), `package.json` 0.9.1 → T1 `tsc` exit 0 · A1 53 of 53 · `dsv@0.9.1 running`
+      E1 6 of 6 edge pixels reachable · E2 real double-click on `note` 216 → 157 px · E3 drags −40 px and +12 px, each exact · H5 0 of 75 points covered (5 of 75 hit bb's panel handle) · F0–F5 6 of 6, 0 of 20 dispatched
+      E3 target changed from +40 px: that drag ends outside the 1,440 px window. Script `thr_zg2iba5z4v/e-check.mjs`
+- [x] 2. `app.tsx` fix 3: the switch, remembered in `localStorage` (`dsv.viewerSide`) → T1 `tsc` exit 0 · A1 53 of 53 · `dsv@0.9.1 running` · `l-check.mjs` 5 of 5 · `v-check.mjs` 18 of 18 on each side
+      L1 right, 360 px, grid 199 of 559 px · L2 below: grid 559 px wide, pane 273 of 682 px high (40%) · L3 4 of 4 unchanged after each switch, Record tab kept · L4 label, title, icon turn · L5 2 of 2 after reloads
+      Pane below: V1–V4 and R1–R8 pass · pane seen below 5 of 5 open views · P1 A3 35 ms, A4 24 · P2 17 ms · A2 191–397 ms · A3 37 ms · A4 34
+      Run 1 with `SIDE=below` kept the pane on the right: my script did not call its switch helper. Script fixed, app not changed; run 2: 18 of 18
+- [x] 3. `README.md` (Viewer: right or below, side remembered; image text; limits) and `screenshot.png` → S2 pass · P1 0 of 75 · P2 0 · P3 0 of 3,430 · P5 0 metadata chunks · P4 approved by the user
+      2,228 × 1,544 px, 572,078 bytes · a clip of the dsv plugin only (5 px of bb's panel handle cut) · the pane on the right, Record tab, row 1 · script `thr_zg2iba5z4v/readme-shot2.mjs`
+- [x] 4. `CHANGELOG.md` 0.9.1, `TASKS.md`, "Result v1.7.1" in the plan → A1 53 of 53 · T1 `tsc` exit 0 · no merge, no push
+
+## v1.7.2 (0.9.2)
+
+Plan: "Proposal v1.7.2" and "Decisions v1.7.2" (approved `go`, 2026-09-16, defaults 1–3, in thr_zg2iba5z4v). Built in thread thr_c7bw37g5fy. Branch `feat/record-form` from `fix/viewer-layout`.
+Chunk size: one plan chunk. 3 chunks. Stop if a chunk is red. Chunk 2 stops for the user's review of the screenshot.
+
+- [x] 1. `app.tsx` Record tab as a read-only form, `package.json` 0.9.2 → T1 `tsc` exit 0 · A1 53 of 53 · `dsv@0.9.2 running` · `rf-check.mjs` 5 of 5 · `l-check.mjs` 5 of 5 · `v-check.mjs` 18 of 18 on each side
+      RF1 20 of 20 lines: label right ≤ field left, 1 px borders · RF2 20 of 20 fields at one left edge, 20 of 20 labels at one right edge, label column 76 of 144 px · RF3 9 of 9 numbers right, 11 of 11 others left · RF4 1 of 20 primary border (`city`) · RF5 below: 20 of 20 fields at one left edge
+      L1 right 360 px · L2 below 273 of 682 px · L3 4 of 4 twice · L4 pass · L5 2 of 2 · pane right: P1 A3 41 ms, A4 34 · P2 19 ms · A3 84 ms · pane below: P1 A3 39 ms, A4 24 · P2 18 ms · A3 94 ms · A2 199–820 ms (10 loads) · A4 34
+      Scripts in `thr_c7bw37g5fy`: `rf-check.mjs` (new), copies of `l-check.mjs` and `v-check.mjs` (full-window shots removed). First runs: 4 of 4 runs of 3 scripts pass
+- [x] 2. `README.md` (Viewer bullet, image alt text and image text) and `screenshot.png` → S2 pass · P1 0 of 75 · P2 0 · P3 0 of 3,430 · P5 0 metadata chunks · P4 approved by the user
+      2,228 × 1,544 px, 605,288 bytes · a clip of the dsv plugin only (5 px of bb's panel handle cut) · the pane on the right, Record tab, row 1, 20 of 20 fields boxed, label column 76 px · script `thr_c7bw37g5fy/readme-shot2.mjs`
+- [x] 3. `CHANGELOG.md` 0.9.2, `TASKS.md`, "Result v1.7.2" in the plan → A1 53 of 53 · T1 `tsc` exit 0 · no merge, no push
