@@ -1,5 +1,51 @@
 # CHANGELOG — bb-plugin-dsv
 
+## 0.9.2 — 2026-09-16
+
+Plan: "Proposal v1.7.2" and "Decisions v1.7.2" in `thr_huv4udkmb8/csv-plugin-plan.md`. The user approved it with `go` in thread thr_zg2iba5z4v, with the defaults 1–3. Built in thread thr_c7bw37g5fy. Branch `feat/record-form` from `fix/viewer-layout`.
+
+### Changed
+
+- The Record tab is a read-only form in one column. Each line has a label on the left and a boxed field on the right.
+- The label is the column name, then its type in small muted text. The label is right-aligned. A long name is cut with "…", and its title shows the whole name.
+- The label column is as wide as the longest label, at most 40% of the form. All fields start at one left edge.
+- The field has a border, rounded corners, and a light muted background. Numbers align right with `tabular-nums`, as in the grid. A long value wraps, up to 6 lines.
+- The field of the active column has a `primary` border. Hover makes the field background darker. Before, the active line had a muted background, and the values had no box.
+- Each line is still one `<button>`. A click opens the Cell tab for that column, as before. The form is the same with the pane on the right and below.
+- `screenshot.png` shows the Record tab as a form, with the pane on the right and row 1 active. It is a clip of the dsv plugin only, in the same 2,228 × 1,544 px frame.
+- `README.md`: the Viewer bullet, the image alt text, and the image text.
+
+### Verified
+
+| # | Check | Target | Measured |
+|---|---|---|---|
+| A1 | tests | 53 of 53 | 53 of 53 |
+| T1 | `tsc` | exit 0 | exit 0 |
+| RF1 | Record tab, row 1, pane on the right: label right edge ≤ field left edge, field border ≥ 1 px | 20 of 20 lines | 20 of 20; borders 1 px; 20 of 20 lines are a `<button>` |
+| RF2 | fields at one left edge ± 1 px; labels at one right edge ± 1 px; label column ≤ 40% of the pane | 20 of 20; 20 of 20; ≤ 144 px | 20 of 20; 20 of 20; 76 px |
+| RF3 | text in the fields: position ± 1 px and `text-align` | 9 of 9 number columns right; 11 of 11 others left | 9 of 9; 11 of 11 |
+| RF4 | fields with the `primary` border, active column `city` | 1 of 20 | 1 of 20 (`city`) |
+| RF5 | pane below the grid: fields at one left edge ± 1 px | 20 of 20 | 20 of 20 |
+| L1–L5 | the switch checks of 0.9.1 | 5 of 5 | 5 of 5 |
+| V1–V4, R1–R8, I5 | the 0.9.0 checks, pane on the right | 18 of 18 | 18 of 18 |
+| V1–V4, R1–R8, I5 | the 0.9.0 checks, pane below | 18 of 18 | 18 of 18; the pane was below in 5 of 5 open views |
+| P1 | pane open, 100,000 rows | A3 < 300 ms; A4 < 60 | right: 41 ms, 34 rows; below: 39 ms, 24 rows |
+| P2 | Last → paint | < 300 ms | right: 19 ms; below: 18 ms |
+| A2 / A3 / A4 | all runs | < 2 s / < 300 ms / < 60 | 199–820 ms (10 loads) / 94 ms / 34 |
+| S2 | the screenshot | the Record tab as a form; pane on the right; row 1 | pane 360 px on the right; `Record 1 of 100,000`; 20 lines; 20 of 20 fields boxed |
+| P1–P3 (image) | the screenshot shows the dsv plugin only | 0 / 0 / 0 | 0 of 75 outside texts / 0 thread IDs / 0 of 3,430 points |
+| P5 | PNG metadata | 0 chunks | 0 (IHDR, 149 IDAT, IEND) |
+| P4 | the user reviews the image | approved | approved |
+
+Also measured, not in the plan: hover changed the field background on 1 of 1 line; 20 of 20 names have a title; the label and the field text share one baseline (0 px apart).
+How measured: headless Chrome (port 9333) on bb's web UI, real mouse and key input through CDP. Scripts in `thr_c7bw37g5fy`: `rf-check.mjs` (new), `l-check.mjs`, `v-check.mjs` (`SIDE=right` and `SIDE=below`), `readme-shot2.mjs`. The first run of each script passed.
+
+### Not tested
+
+- The bb desktop app, and the dark theme.
+- A name longer than the label limit. The longest sample label is 76 px, so no "…" cut showed.
+- A value longer than 6 lines, a value with line breaks, and keyboard-only use of the form lines.
+
 ## 0.9.1 — 2026-09-16
 
 Plan: "Proposal v1.7.1" and its 3 addenda in `thr_huv4udkmb8/csv-plugin-plan.md`. The user approved it with `go, here` and chose a remembered side. Built in thread thr_zg2iba5z4v. Branch `fix/viewer-layout`.
