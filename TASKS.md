@@ -97,3 +97,15 @@ Chunk size: one plan chunk. 4 chunks. Stop if a chunk is red.
       Run 1 stopped at R2: my script clicked the `name` sort button outside the 199 px grid. Script fixed, app not changed; run 2: 18 of 18
 - [x] 4. `README.md` (fit tip, Viewer, Go to row, limits), `CHANGELOG.md` 0.9.0, `TASKS.md` → A1 53 of 53 · T1 `tsc` exit 0 · "Result v1.7" added to the plan
       0 of 2,000,000 sample cells have a line break, so that case is "not tested" · Chrome on port 9333 stopped, profile kept · no merge, no push
+
+## v1.7.1 (0.9.1)
+
+Plan: "Proposal v1.7.1" and its 3 addenda: README and screenshot, horizontal view, remembered side (approved `go, here`, 2026-09-16; the user chose "Build here, remembered"). Thread: thr_zg2iba5z4v. Branch `fix/viewer-layout`.
+Chunk size: one plan chunk. 4 chunks. Stop if a chunk is red. Chunk 3 stops for the user's review of the screenshot.
+
+- [x] 1. `app.tsx` fix 1 (16 px after the last column), fix 2 (`#` header cell on top), `package.json` 0.9.1 → T1 `tsc` exit 0 · A1 53 of 53 · `dsv@0.9.1 running`
+      E1 6 of 6 edge pixels reachable · E2 real double-click on `note` 216 → 157 px · E3 drags −40 px and +12 px, each exact · H5 0 of 75 points covered (5 of 75 hit bb's panel handle) · F0–F5 6 of 6, 0 of 20 dispatched
+      E3 target changed from +40 px: that drag ends outside the 1,440 px window. Script `thr_zg2iba5z4v/e-check.mjs`
+- [ ] 2. `app.tsx` fix 3: the switch, remembered in `localStorage` → T1, reload, L1–L5, V1–V4, R1–R8 (pane below), P1, P2, A2–A4
+- [ ] 3. `README.md` and `screenshot.png` → S2, P1–P3, P5; stop for the user's review (P4), then commit
+- [ ] 4. `CHANGELOG.md` 0.9.1, `TASKS.md`, "Result v1.7.1" in the plan. No merge, no push.

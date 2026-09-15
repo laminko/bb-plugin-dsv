@@ -34,6 +34,8 @@ const ROW_H = 28;
 const OVERSCAN = 4;
 const GUTTER = 64;
 const MIN_W = 40; // narrowest column a drag can make
+// Room after the last column. bb's overlay scrollbar covers the grid's right 14 px, and the last column edge must stay clear of it.
+const EDGE_PAD = 16;
 const MAC = /Mac|iPhone|iPad/.test(navigator.userAgent);
 const COPY_KEY = "dsv.copyDefault"; // localStorage: what ⌘C copies, "data" or "names"
 const ARROWS: Record<string, [number, number] | undefined> = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
@@ -686,11 +688,11 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
           onMouseDown={onMouseDown}
           onKeyDown={onKeyDown}
         >
-          <div className="relative" style={{ width: total, height: (hits.length + 1) * ROW_H, lineHeight: `${ROW_H}px` }}>
+          <div className="relative" style={{ width: total + EDGE_PAD, height: (hits.length + 1) * ROW_H, lineHeight: `${ROW_H}px` }}>
             <div className="sticky top-0 z-10 flex border-b-2 border-border bg-muted font-semibold" style={{ height: ROW_H }}>
               <div
                 title="Row number. Click to select all."
-                className={`${cell} sticky left-0 bg-muted text-right text-muted-foreground`}
+                className={`${cell} sticky left-0 z-[1] bg-muted text-right text-muted-foreground`}
                 style={{ width: GUTTER }}
               >
                 #
@@ -742,7 +744,7 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
                   data-row=""
                   aria-current={marked || undefined}
                   className={`absolute left-0 flex border-b border-border ${marked ? "bg-accent text-accent-foreground" : ""}`}
-                  style={{ top: (pos + 1) * ROW_H, height: ROW_H, width: total }}
+                  style={{ top: (pos + 1) * ROW_H, height: ROW_H, width: total + EDGE_PAD }}
                 >
                   <div
                     className={`${cell} sticky left-0 z-[1] text-right ${marked ? "bg-accent" : "bg-background"} ${inRows ? "font-semibold text-primary" : marked ? "" : "text-muted-foreground"}`}
