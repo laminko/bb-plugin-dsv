@@ -1,5 +1,69 @@
 # CHANGELOG — bb-plugin-dsv
 
+## 0.9.0 — 2026-09-15
+
+Plan: "Proposal v1.7" and "Decisions v1.7" in `thr_huv4udkmb8/csv-plugin-plan.md`. The user approved it (`go`, defaults 1–5) in thread thr_nuuxhn6nnb. Built in thread thr_zg2iba5z4v. Branch `feat/viewer`.
+
+### Added
+
+- Fit a column to its content: double-click a column edge. The width is the widest of the column name and the 20 longest values in the rows you see.
+- The fit measures pixels in the grid font. Search, filters, and hidden rows apply. The width is at most the visible grid width.
+- Viewer button with the Font Awesome Free `table-columns` icon, after Save. It opens and closes a 360 px pane on the right of the grid.
+- Viewer tab "Cell": the column name and type, the row number, and the whole value of the active cell. The value keeps its line breaks, and you can select it. The character count is below it.
+- Viewer tab "Record": the active row, one line per shown column, with the name, type, and value. A long value shows up to 6 lines. A click on a line makes that cell active and opens the Cell tab.
+- Record buttons First, Previous, Next, and Last, with the Font Awesome Free `backward-step`, `angle-left`, `angle-right`, and `forward-step` icons. Each moves the active cell to that row of the view. The column stays.
+- `Record N of M` shows the position in the view. First and Previous are disabled on the first row, and Next and Last on the last row.
+- With no active cell, First and Next go to row 1, and Previous and Last go to the last row.
+
+### Changed
+
+- A double-click on a column edge fits the content. Before, it set the automatic width again. The edge title is "Drag to resize. Double-click to fit the content."
+- The first automatic width does not change: 200 rows, 72–320 px.
+- Go to row also makes that row active, in the active column or the first shown column. So the Viewer pane follows it.
+- `logic.ts`: `longest(t, hits, col, k)` gives the `k` longest values of one column in the given rows. A1 has 53 tests.
+
+### Verified
+
+| # | Check | Target | Measured |
+|---|---|---|---|
+| A1 | tests | 53 of 53 | 53 of 53 |
+| T1 | `tsc` | exit 0 | exit 0 |
+| F0 | first automatic width | unchanged | 20 of 20 columns equal the 200-row formula |
+| F1 | 20 columns, the 20 longest values of each | 0 of 400 cut, unless capped | 0 of 400; 0 columns capped (grid 559 px) |
+| F2 | header names after a fit | 0 of 20 cut | 0 of 20 |
+| F3 | double-click → paint, longest column | < 200 ms | 17 ms (`note`, 25 characters) |
+| F4 | search `oslo`, then fit `email` | ≤ the F1 width | 170 px ≤ 176 px |
+| F5 | drag after a fit, then fit again | the drag works; F1 width ± 1 px | 176 → drag 236 (+60) → fit 176 |
+| I5 | Viewer button | icon, after Save, toggles | 1 `<svg>`; after Save; `aria-pressed` false → true; pane 360 px |
+| V1 | click row 5, `email` | `email`, `string`, row 5, `ivy5@example.com` | the same; "16 characters" |
+| V2 | the longest value of 10 columns | 10 of 10 | 10 of 10 |
+| V3 | 5 arrow key steps | 5 of 5 | 5 of 5 |
+| V4 | search, sort, selection, scroll; open and close the pane | 4 unchanged | open 4 of 4; closed 4 of 4 |
+| R1 | Record tab on row 1 | 20 of 20 lines; names in order; values = row 1 | 20 of 20; in order; 20 of 20 values |
+| R2 | hide `note`, sort `name ↑`, First | 19 lines; the first sorted row | 19 lines; row 34; 19 of 19 values |
+| R3 | click the `price` line | active cell `price`; the Cell tab shows it | `price` in row 34; Cell tab `price`, `float`, `350.16` |
+| R4 | on row 1: Next, Last, Previous, First | 4 of 4 | rows 2, 100,000, 99,999, 1; counters match: 4 of 4 |
+| R5 | disabled buttons | 4 of 4 | row 1: First, Previous; last row: Next, Last: 4 of 4 |
+| R6 | the 4 buttons | 1 `<svg>`, title, `aria-label`: 4 of 4 | 4 of 4 |
+| R7 | search `oslo`, then Last | the last row of the view; `Record 10,092 of 10,092` | row 99,983, the last hit; `Record 10,092 of 10,092` |
+| R8 | no active cell: Next; then Esc and Last | row 1; then the last row | row 1; Esc cleared it; row 100,000 |
+| P1 | pane open, 100,000 rows | A3 < 300 ms; A4 < 60 | 40 ms; 34 rows |
+| P2 | Last on 100,000 rows | click → paint < 300 ms | 19 ms |
+| A2 | first paint | < 2 s | 195–489 ms, 3 loads |
+| A3 | search change | < 300 ms | 69 ms, worst of 10 |
+| A4 | rows in the DOM | < 60 | 34, max of 47 scroll positions |
+
+How measured: headless Chrome (port 9333) on bb's web UI, real mouse and key input through CDP. Scripts: `thr_zg2iba5z4v/f-check.mjs` and `thr_zg2iba5z4v/v-check.mjs` in bb thread storage.
+A2 is measured in a new way. bb opens the file tab again after a page load, so a tab click loads nothing. A2 is the time from the file request start to the first painted status bar.
+F1, F3: the edge of the last column, `note`, is under the grid scrollbar, so a real click cannot reach it. For `note`, the check sent the `dblclick` event to the edge. The other 19 columns got real double-clicks.
+R8: after a click on a pane button, the focus is in the pane. The check moved the focus to the grid before Esc.
+
+### Not tested
+
+- The bb desktop app.
+- A value with line breaks. The sample file has none.
+- The dark theme, and keyboard-only use of the pane.
+
 ## 0.8.0 — 2026-09-15
 
 Request: "add a save button". The user chose "Download current view". Second request: add shortcut for "Save" (cmd + S). Branch `feat/save-view`.

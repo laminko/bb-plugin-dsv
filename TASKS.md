@@ -95,4 +95,5 @@ Chunk size: one plan chunk. 4 chunks. Stop if a chunk is red.
       V1 pass · V2 10 of 10 · V3 5 of 5 · V4 4 of 4 open, 4 of 4 closed · R1 20 of 20 · R2 19 lines · R3 pass · R4 4 of 4 · R5 4 of 4 · R6 4 of 4 · R7 `Record 10,092 of 10,092` · R8 pass
       P1 A3 40 ms, A4 34 · P2 19 ms · A2 195–489 ms (file request → paint, 3 loads) · A3 69 ms worst of 10 · A4 34 rows max of 47 positions
       Run 1 stopped at R2: my script clicked the `name` sort button outside the 199 px grid. Script fixed, app not changed; run 2: 18 of 18
-- [ ] 4. `README.md`, `CHANGELOG.md` 0.9.0, `TASKS.md`. No merge, no push.
+- [x] 4. `README.md` (fit tip, Viewer, Go to row, limits), `CHANGELOG.md` 0.9.0, `TASKS.md` → A1 53 of 53 · T1 `tsc` exit 0 · "Result v1.7" added to the plan
+      0 of 2,000,000 sample cells have a line break, so that case is "not tested" · Chrome on port 9333 stopped, profile kept · no merge, no push

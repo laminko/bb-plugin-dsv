@@ -18,10 +18,11 @@ The image shows a synthetic sample file: 100,000 rows × 20 columns, 15 MB. The 
 - **Search** in all columns, or only in the columns you pick. Case is ignored.
 - **Filters:** add as many as you need. A row must match all of them. The operators follow the column type.
 - **Sort:** click the arrow in a column name for ascending, descending, then off. Shift+click adds a column as the next sort level. The Sort panel sets the levels and their order.
-- **Columns:** show or hide each column. Drag a column edge to resize it. Double-click the edge for the automatic width.
+- **Columns:** show or hide each column. Drag a column edge to resize it. Double-click the edge to fit the column to its content: the longest values in the rows you see, and the column name.
 - **Select and copy, as in a spreadsheet:** cells, rows, or columns. Copy gives tab-separated text, with or without the column names.
 - **Save:** downloads the rows you see (search, filters, and sort applied) and the shown columns as a UTF-8 CSV file.
-- **Go to row:** moves a row number to the top and marks it.
+- **Viewer:** a pane on the right of the grid. The Cell tab shows the whole value of the active cell, with its line breaks and character count. The Record tab shows the active row, one line per column. Its First, Previous, Next, and Last buttons move through the rows you see.
+- **Go to row:** moves a row number to the top, marks it, and makes it the active row.
 
 ## Keys
 
@@ -70,7 +71,7 @@ bb plugin reload dsv       # rebuild and reload the installed plugin
 - The file loads once. It does not reload when the file changes on disk.
 - Filters combine with AND only. No regular expressions.
 - Save writes a new CSV download. It does not change the original file.
-- Sort, column widths, and hidden columns reset when the tab closes.
+- Sort, column widths, hidden columns, and the Viewer pane reset when the tab closes.
 - `NA`, `null`, and thousands separators stay text. Time-zone offsets in dates are ignored.
 - The encoding is not detected. Pick it in Format.
 
