@@ -106,6 +106,9 @@ Chunk size: one plan chunk. 4 chunks. Stop if a chunk is red. Chunk 3 stops for 
 - [x] 1. `app.tsx` fix 1 (16 px after the last column), fix 2 (`#` header cell on top), `package.json` 0.9.1 → T1 `tsc` exit 0 · A1 53 of 53 · `dsv@0.9.1 running`
       E1 6 of 6 edge pixels reachable · E2 real double-click on `note` 216 → 157 px · E3 drags −40 px and +12 px, each exact · H5 0 of 75 points covered (5 of 75 hit bb's panel handle) · F0–F5 6 of 6, 0 of 20 dispatched
       E3 target changed from +40 px: that drag ends outside the 1,440 px window. Script `thr_zg2iba5z4v/e-check.mjs`
-- [ ] 2. `app.tsx` fix 3: the switch, remembered in `localStorage` → T1, reload, L1–L5, V1–V4, R1–R8 (pane below), P1, P2, A2–A4
+- [x] 2. `app.tsx` fix 3: the switch, remembered in `localStorage` (`dsv.viewerSide`) → T1 `tsc` exit 0 · A1 53 of 53 · `dsv@0.9.1 running` · `l-check.mjs` 5 of 5 · `v-check.mjs` 18 of 18 on each side
+      L1 right, 360 px, grid 199 of 559 px · L2 below: grid 559 px wide, pane 273 of 682 px high (40%) · L3 4 of 4 unchanged after each switch, Record tab kept · L4 label, title, icon turn · L5 2 of 2 after reloads
+      Pane below: V1–V4 and R1–R8 pass · pane seen below 5 of 5 open views · P1 A3 35 ms, A4 24 · P2 17 ms · A2 191–397 ms · A3 37 ms · A4 34
+      Run 1 with `SIDE=below` kept the pane on the right: my script did not call its switch helper. Script fixed, app not changed; run 2: 18 of 18
 - [ ] 3. `README.md` and `screenshot.png` → S2, P1–P3, P5; stop for the user's review (P4), then commit
 - [ ] 4. `CHANGELOG.md` 0.9.1, `TASKS.md`, "Result v1.7.1" in the plan. No merge, no push.
