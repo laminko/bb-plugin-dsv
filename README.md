@@ -2,9 +2,9 @@
 
 Opens CSV, TSV, and other delimited files as a typed, searchable, filterable grid.
 
-![DSV Table showing a sample CSV file with 100,000 rows and 20 columns](screenshot.png)
+![DSV Table showing a sample CSV file with 100,000 rows and 20 columns, and the Viewer pane with the record of row 1](screenshot.png)
 
-The image shows a synthetic sample file: 100,000 rows × 20 columns, 15 MB. The names, cities, and `@example.com` emails are not real.
+The image shows a synthetic sample file: 100,000 rows × 20 columns, 15 MB. The names, cities, and `@example.com` emails are not real. The Viewer pane on the right shows row 1 on the Record tab.
 
 ## Features
 
@@ -21,7 +21,7 @@ The image shows a synthetic sample file: 100,000 rows × 20 columns, 15 MB. The 
 - **Columns:** show or hide each column. Drag a column edge to resize it. Double-click the edge to fit the column to its content: the longest values in the rows you see, and the column name.
 - **Select and copy, as in a spreadsheet:** cells, rows, or columns. Copy gives tab-separated text, with or without the column names.
 - **Save:** downloads the rows you see (search, filters, and sort applied) and the shown columns as a UTF-8 CSV file.
-- **Viewer:** a pane on the right of the grid. The Cell tab shows the whole value of the active cell, with its line breaks and character count. The Record tab shows the active row, one line per column. Its First, Previous, Next, and Last buttons move through the rows you see.
+- **Viewer:** a pane on the right of the grid or below it. A switch in the pane moves it. The plugin remembers the side. The Cell tab shows the whole value of the active cell, with its line breaks and character count. The Record tab shows the active row, one line per column. Its First, Previous, Next, and Last buttons move through the rows you see.
 - **Go to row:** moves a row number to the top, marks it, and makes it the active row.
 
 ## Keys
@@ -71,7 +71,7 @@ bb plugin reload dsv       # rebuild and reload the installed plugin
 - The file loads once. It does not reload when the file changes on disk.
 - Filters combine with AND only. No regular expressions.
 - Save writes a new CSV download. It does not change the original file.
-- Sort, column widths, hidden columns, and the Viewer pane reset when the tab closes.
+- Sort, column widths, hidden columns, and the Viewer pane reset when the tab closes. Only the side of the pane is kept.
 - `NA`, `null`, and thousands separators stay text. Time-zone offsets in dates are ignored.
 - The encoding is not detected. Pick it in Format.
 

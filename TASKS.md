@@ -110,5 +110,6 @@ Chunk size: one plan chunk. 4 chunks. Stop if a chunk is red. Chunk 3 stops for 
       L1 right, 360 px, grid 199 of 559 px · L2 below: grid 559 px wide, pane 273 of 682 px high (40%) · L3 4 of 4 unchanged after each switch, Record tab kept · L4 label, title, icon turn · L5 2 of 2 after reloads
       Pane below: V1–V4 and R1–R8 pass · pane seen below 5 of 5 open views · P1 A3 35 ms, A4 24 · P2 17 ms · A2 191–397 ms · A3 37 ms · A4 34
       Run 1 with `SIDE=below` kept the pane on the right: my script did not call its switch helper. Script fixed, app not changed; run 2: 18 of 18
-- [ ] 3. `README.md` and `screenshot.png` → S2, P1–P3, P5; stop for the user's review (P4), then commit
+- [x] 3. `README.md` (Viewer: right or below, side remembered; image text; limits) and `screenshot.png` → S2 pass · P1 0 of 75 · P2 0 · P3 0 of 3,430 · P5 0 metadata chunks · P4 approved by the user
+      2,228 × 1,544 px, 572,078 bytes · a clip of the dsv plugin only (5 px of bb's panel handle cut) · the pane on the right, Record tab, row 1 · script `thr_zg2iba5z4v/readme-shot2.mjs`
 - [ ] 4. `CHANGELOG.md` 0.9.1, `TASKS.md`, "Result v1.7.1" in the plan. No merge, no push.
