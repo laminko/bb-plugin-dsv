@@ -14,7 +14,7 @@ import {
   useEffect, useId, useLayoutEffect, useMemo, useRef, useState,
 } from "react";
 import {
-  arity, bounds, cells, decode, DELIMITERS, detectDelimiter, detectHeader, ENCODINGS, family, floorIndex, FORMAT, OPS, parse, query,
+  arity, bounds, cells, decode, DELIMITERS, detectDelimiter, detectHeader, ENCODINGS, family, floorIndex, FORMAT, longest, OPS, parse, query,
   recordDelimiter, sortHits, step, toDelimited, toTable, toTsv,
   type Dir, type Filter, type Format, type Op, type Sel, type SortKey, type Table,
 } from "./logic.ts";
@@ -517,6 +517,25 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
     el.addEventListener("lostpointercapture", end);
   };
 
+  // Double-click a column edge: fit the column to its 20 longest values in the rows in view and to its header.
+  // Values are measured with a canvas in the body cell font, the header cell at its max-content width.
+  // The width is at most the visible grid width.
+  const fit = (c: number) => {
+    const el = box.current!;
+    const ci = cols.indexOf(c);
+    const head = el.querySelectorAll<HTMLElement>('[role="columnheader"]')[ci];
+    const s = getComputedStyle(el.querySelector("[data-row]")?.children[ci + 1] ?? head);
+    const ctx = document.createElement("canvas").getContext("2d")!;
+    ctx.font = `${s.fontStyle} ${s.fontWeight} ${s.fontSize} ${s.fontFamily}`;
+    let need = 0;
+    for (const v of longest(table, hits, c, 20)) need = Math.max(need, ctx.measureText(v).width);
+    need += parseFloat(s.paddingLeft) + parseFloat(s.paddingRight);
+    head.style.width = "max-content";
+    need = Math.max(need, head.getBoundingClientRect().width);
+    head.style.width = `${w(c)}px`;
+    setCustom((cur) => ({ ...cur, [c]: Math.max(MIN_W, Math.min(el.clientWidth - GUTTER, Math.ceil(need))) }));
+  };
+
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex flex-wrap items-center gap-2 border-b border-border px-2 py-1.5">
@@ -656,10 +675,10 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
                   </button>
                   <div
                     data-resize=""
-                    title="Drag to resize. Double-click for the automatic width."
+                    title="Drag to resize. Double-click to fit the content."
                     className="absolute right-0 top-0 h-full w-1.5 cursor-col-resize hover:bg-primary"
                     onPointerDown={(e) => resize(e, c)}
-                    onDoubleClick={() => setCustom(({ [c]: _, ...rest }) => rest)}
+                    onDoubleClick={() => fit(c)}
                   />
                 </div>
               );

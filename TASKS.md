@@ -88,6 +88,8 @@ Plan: "Proposal v1.7" and "Decisions v1.7" (approved `go`, 2026-09-15, defaults 
 Chunk size: one plan chunk. 4 chunks. Stop if a chunk is red.
 
 - [x] 1. `logic.ts` `longest()` + 3 tests → A1 53 of 53 pass · T1 `tsc` exit 0 (Node v24.18.0, 2026-09-15)
-- [ ] 2. `app.tsx` fit on double-click → T1, `bb plugin reload dsv`, F1–F5
+- [x] 2. `app.tsx` fit on double-click, `package.json` 0.9.0 → T1 `tsc` exit 0 · A1 53 of 53 · `dsv@0.9.0 running`
+      F0 20 of 20 automatic widths unchanged · F1 0 of 400 cut, 0 columns capped · F2 0 of 20 · F3 17 ms (`note`) · F4 170 ≤ 176 px · F5 drag +60 px, fit again 176 px
+      `note`: its edge is under the grid scrollbar, so a real click cannot reach it; the check dispatched `dblclick` there. Script `thr_zg2iba5z4v/f-check.mjs`
 - [ ] 3. `app.tsx` Viewer pane (Cell and Record tabs, record buttons) → T1, reload, V1–V4, R1–R8, P1, P2, A2–A4
 - [ ] 4. `README.md`, `CHANGELOG.md` 0.9.0, `TASKS.md`. No merge, no push.
