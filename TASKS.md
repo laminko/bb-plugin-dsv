@@ -141,3 +141,13 @@ Chunk size: one plan chunk. 3 chunks. Stop if a chunk is red. Chunk 2 stops for 
 - [x] 2. `README.md` (Viewer bullet: drag and double-click; limits: side and size kept) and `screenshot.png` → S2 pass · P1 0 of 85 · P2 0 · P3 0 of 3,850 · P5 0 metadata chunks · P4 approved by the user
       2,228 × 1,744 px (was 1,544 px high, so all 20 form lines now fit), 663,029 bytes · a clip of the dsv plugin only (5 px of bb's panel handle cut) · header-style labels · script `thr_c7bw37g5fy/readme-shot2.mjs` with `HEIGHT=920`
 - [x] 3. `CHANGELOG.md` 0.9.3, `TASKS.md`, "Result v1.7.3" in the plan → A1 53 of 53 · T1 `tsc` exit 0 · no merge, no push
+
+## 0.9.4
+
+User's request (2026-09-17): "remove click on each field on record view because i cannot make any copy from there". Thread: thr_c7bw37g5fy. Branch `fix/record-select` from `main` = `6bf2eb1`.
+Chunk size: one change. 2 commits.
+
+- [x] 1. `app.tsx` Record lines are a `<div>` with no click and no hover; `README.md`; `package.json` 0.9.4 → T1 `tsc` exit 0 · A1 53 of 53 · `dsv@0.9.4 running` · `cp-check.mjs` 6 of 6 · `rf-check.mjs` 5 of 5 · `l-check.mjs` 5 of 5 · `v-check.mjs` 18 of 18 on each side (R3 rewritten)
+      CP1 0 of 20 line buttons · CP2 2 of 2 selections on the right, 1 of 1 below · CP3 3 of 3 native copies, 0 grid writes · control: ⌘C on a grid cell, 1 grid write · P2 15 ms · A2 190–526 ms (11 loads) · A3 83 ms · A4 34
+      Run 1 of `cp-check.mjs` stopped on its first line (`localStorage` on `about:blank`). Script fixed, app not changed; run 2: 6 of 6
+- [x] 2. `CHANGELOG.md` 0.9.4, `TASKS.md` → no merge, no push

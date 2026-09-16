@@ -1,5 +1,45 @@
 # CHANGELOG — bb-plugin-dsv
 
+## 0.9.4 — 2026-09-17
+
+The user's request: "remove click on each field on record view because i cannot make any copy from there". Built in thread thr_c7bw37g5fy. Branch `fix/record-select` from `main` = `6bf2eb1`.
+
+### Changed
+
+- The Record lines take no clicks. You can select a value with the mouse and copy it with ⌘C / Ctrl+C.
+- Each line is a `<div>`, not a `<button>`. Before, a click opened the Cell tab, and the button did not let you select its text.
+- The field background does not change on hover, because a click on the line does nothing.
+- To see a whole value in the Cell tab, click the cell in the grid, then click the Cell tab.
+- `README.md`: the Viewer bullet says that you can select and copy a value.
+
+### Verified
+
+| # | Check | Target | Measured |
+|---|---|---|---|
+| A1 | tests | 53 of 53 | 53 of 53 |
+| T1 | `tsc` | exit 0 | exit 0 |
+| CP1 | Record lines that are a button or inside one | 0 of 20 | 0 of 20 |
+| CP2 | real drag across a field, pane on the right: the selection is the value | 2 of 2 (`email`, `price`) | 2 of 2; the Record tab stays |
+| CP3 | real ⌘C after that selection: a native copy of the value, and no grid copy | 2 of 2; 0 grid writes | 2 of 2; `defaultPrevented` false; 0 grid writes |
+| CP2 / CP3 | the same with the pane below (`city`) | 1 of 1; 0 grid writes | 1 of 1; 0 grid writes |
+| Control | ⌘C after a click on a grid cell | the grid copy runs once | 1 grid write; the grid has focus |
+| R3 (changed) | a real click on the `price` field | the Record tab and the active cell stay | pass on both sides; 0 line buttons |
+| RF1–RF5 | the form checks | 5 of 5 | 5 of 5 |
+| L1–L5 | the switch checks | 5 of 5 | 5 of 5 |
+| V1–V4, R1–R8, I5 | pane on the right / pane below | 18 of 18 each | 18 of 18 / 18 of 18 |
+| P1 | pane open, 100,000 rows | A3 < 300 ms; A4 < 60 | right: 40 ms, 34 rows; below: 40 ms, 24 rows |
+| P2 | Last → paint | < 300 ms | right: 15 ms; below: 15 ms |
+| A2 / A3 / A4 | all runs | < 2 s / < 300 ms / < 60 | 190–526 ms (11 loads) / 83 ms / 34 |
+
+How measured: headless Chrome (port 9333) on bb's web UI, real mouse and key input through CDP. The ⌘C key event carries the `copy` editing command. Scripts in `thr_c7bw37g5fy`: `cp-check.mjs` (new), `rf-check.mjs`, `l-check.mjs`, `v-check.mjs` (R3 rewritten for this change).
+The first run of `cp-check.mjs` stopped on its first line: it read `localStorage` on `about:blank`. The script was fixed, and the app did not change before run 2.
+
+### Not tested
+
+- The bb desktop app, and Ctrl+C on Windows or Linux.
+- A value longer than 6 lines. The form cuts it at 6 lines, so a mouse selection there may not reach the rest. The Cell tab shows the whole value.
+- Keyboard-only selection in the form.
+
 ## 0.9.3 — 2026-09-16
 
 Plan: "Proposal v1.7.3" in `thr_huv4udkmb8/csv-plugin-plan.md`. The user approved it with `go, here`, with the defaults 1–4. Built in thread thr_c7bw37g5fy. Branch `feat/viewer-resize` from `main` = `907d094`.
