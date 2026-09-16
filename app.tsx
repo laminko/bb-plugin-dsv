@@ -948,29 +948,20 @@ function Viewer({ table, hits, cols, sel, tab, setTab, pick, side, setSide, size
               <p className="text-muted-foreground">Click a cell to see its record.</p>
             ) : (
               // A read-only form: each line spans both columns as a subgrid, so the labels and the fields line up.
+              // The lines take no clicks, so a value can be selected and copied.
               <div className="grid grid-cols-[fit-content(40%)_minmax(0,1fr)] gap-x-2 gap-y-1">
                 {cols.map((k, ci) => (
-                  <button
-                    key={k}
-                    type="button"
-                    data-col={ci}
-                    title={`Show ${table.names[k]} in the Cell tab`}
-                    className="group col-span-2 grid grid-cols-subgrid items-baseline text-left"
-                    onClick={() => {
-                      pick(at, ci);
-                      setTab("cell");
-                    }}
-                  >
+                  <div key={k} data-col={ci} className="col-span-2 grid grid-cols-subgrid items-baseline">
                     <span className="flex min-w-0 items-baseline justify-end gap-1">
                       <span className="truncate font-semibold" title={table.names[k]}>{table.names[k]}</span>
                       <span className="shrink-0 rounded bg-muted px-1 text-[10px] font-semibold leading-4 text-muted-foreground">{table.dtypes[k]}</span>
                     </span>
                     <span
-                      className={`line-clamp-6 whitespace-pre-wrap break-words rounded-md border bg-muted/40 px-2 py-1 group-hover:bg-muted ${ci === ac ? "border-primary" : "border-border"} ${family(table.dtypes[k]) === "number" ? "text-right tabular-nums" : ""}`}
+                      className={`line-clamp-6 whitespace-pre-wrap break-words rounded-md border bg-muted/40 px-2 py-1 ${ci === ac ? "border-primary" : "border-border"} ${family(table.dtypes[k]) === "number" ? "text-right tabular-nums" : ""}`}
                     >
                       {row[k] ?? ""}
                     </span>
-                  </button>
+                  </div>
                 ))}
               </div>
             )}
