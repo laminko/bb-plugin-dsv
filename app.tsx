@@ -912,9 +912,9 @@ function Viewer({ table, hits, cols, sel, tab, setTab, pick, side, setSide }: {
                       setTab("cell");
                     }}
                   >
-                    <span className="flex min-w-0 items-baseline justify-end gap-1 text-xs">
-                      <span className="truncate" title={table.names[k]}>{table.names[k]}</span>
-                      <span className="shrink-0 text-[10px] text-muted-foreground">{table.dtypes[k]}</span>
+                    <span className="flex min-w-0 items-baseline justify-end gap-1">
+                      <span className="truncate font-semibold" title={table.names[k]}>{table.names[k]}</span>
+                      <span className="shrink-0 rounded bg-muted px-1 text-[10px] font-semibold leading-4 text-muted-foreground">{table.dtypes[k]}</span>
                     </span>
                     <span
                       className={`line-clamp-6 whitespace-pre-wrap break-words rounded-md border bg-muted/40 px-2 py-1 group-hover:bg-muted ${ci === ac ? "border-primary" : "border-border"} ${family(table.dtypes[k]) === "number" ? "text-right tabular-nums" : ""}`}
