@@ -1,5 +1,58 @@
 # CHANGELOG — bb-plugin-dsv
 
+## 0.9.3 — 2026-09-16
+
+Plan: "Proposal v1.7.3" in `thr_huv4udkmb8/csv-plugin-plan.md`. The user approved it with `go, here`, with the defaults 1–4. Built in thread thr_c7bw37g5fy. Branch `feat/viewer-resize` from `main` = `907d094`.
+
+### Added
+
+- Drag the edge of the Viewer pane to resize it. The handle is the pane edge next to the grid: the left edge when the pane is on the right, the top edge when it is below.
+- The handle is 6 px. It shows the `col-resize` or `row-resize` cursor, and it turns `primary` on hover, like a column edge.
+- A drag leaves the pane and the grid at least 200 px each. A double-click on the handle gives the default size back: 360 px on the right, 40% below.
+- Each side keeps its own size in `localStorage` (`dsv.viewerSize`). A new tab opens the pane at the saved size.
+
+### Changed
+
+- The Record form labels look like the column headers: the name is semibold, and the type is a badge. The badge has a muted background, because the pane is white. The user asked for this with an image of a column header.
+- The default pane size has no limit, so it does not change by itself. In a 559 px area, the grid beside a 360 px pane is 199 px, as in 0.9.2. A saved size is at most the area less 200 px.
+- `screenshot.png` shows the new labels. The frame is 2,228 × 1,744 px (was 2,228 × 1,544 px), so all 20 form lines fit without a pane scrollbar.
+- `README.md`: the Viewer bullet (drag and double-click) and the limits (the side and the size are kept).
+
+### Verified
+
+| # | Check | Target | Measured |
+|---|---|---|---|
+| A1 | tests | 53 of 53 | 53 of 53 |
+| T1 | `tsc` | exit 0 | exit 0 |
+| Labels | the name and the badge, compared with a column header | same size and weight | name 13 px, 600; badge 10 px, 600, radius 4 px, padding 4 px |
+| RZ1 | real drag of the handle, −120 px, pane on the right, 799 px area | 480 px ± 1; grid −120 px ± 1 | 360 → 480 px; −120 px |
+| RZ2 | drags past both limits | 200 px; area − 200 px | 200 px; 599 of 599 px |
+| RZ3 | drag, reload, open; 2 times | the saved size: 2 of 2 | 2 of 2 |
+| RZ4 | pane below, real drag of the top edge, −100 px | +100 px ± 1 | 288.8 → 389 px; grid −100.2 px |
+| RZ5 | double-click the handle | 40% below; 360 px on the right | 289 of 289 px; 360 px; saved `{}` |
+| RZ6 | the handle | 1 per side; a cursor; a title | 1 and 1; `col-resize` and `row-resize`; title set |
+| RF1–RF5 | the 0.9.2 form checks | 5 of 5 | 5 of 5 |
+| L1–L5 | the switch checks | 5 of 5 | 5 of 5; L1 pane 360 px, grid 199 of 559 px |
+| V1–V4, R1–R8, I5 | pane on the right | 18 of 18 | 18 of 18 |
+| V1–V4, R1–R8, I5 | pane below | 18 of 18 | 18 of 18 |
+| P1 | pane open, 100,000 rows | A3 < 300 ms; A4 < 60 | right: 40 ms, 34 rows; below: 37 ms, 24 rows |
+| P2 | Last → paint | < 300 ms | right: 17 ms; below: 17 ms |
+| A2 / A3 / A4 | all runs | < 2 s / < 300 ms / < 60 | 338–588 ms (13 loads) / 75 ms / 34 |
+| S2 | the screenshot | the form; pane on the right; row 1 | pane 360 px on the right; `Record 1 of 100,000`; 20 of 20 fields boxed; 4 buttons |
+| P1–P3 (image) | the screenshot shows the dsv plugin only | 0 / 0 / 0 | 0 of 85 outside texts / 0 thread IDs / 0 of 3,850 points |
+| P5 | PNG metadata | 0 chunks | 0 (IHDR, 163 IDAT, IEND) |
+| P4 | the user reviews the image | approved | approved |
+
+How measured: headless Chrome (port 9333) on bb's web UI, real mouse and key input through CDP. Scripts in `thr_c7bw37g5fy`: `rz-check.mjs` (new), `rf-check.mjs`, `l-check.mjs`, `v-check.mjs` (`SIDE=right` and `SIDE=below`), `readme-shot2.mjs` (`HEIGHT=920`).
+The first run of chunk 1 failed RZ1, RZ5, L1, and L3. The 200 px grid limit cut the default pane to 359 px in a 559 px area. The user chose to limit drags only. RZ1–RZ3 run in a 1,920 px viewport, which gives a 799 px area.
+The script loader (`lib.mjs`) got 2 fixes. bb had saved the file panel as closed, so the plugin rendered off the right edge. The loader now opens the panel and makes the file tab active before a load.
+
+### Not tested
+
+- The bb desktop app, the dark theme, and touch input.
+- A window that gets narrower after a size is saved. The CSS limit is in the code, but no check measured it.
+- Resize with the keyboard. It is not built.
+
 ## 0.9.2 — 2026-09-16
 
 Plan: "Proposal v1.7.2" and "Decisions v1.7.2" in `thr_huv4udkmb8/csv-plugin-plan.md`. The user approved it with `go` in thread thr_zg2iba5z4v, with the defaults 1–3. Built in thread thr_c7bw37g5fy. Branch `feat/record-form` from `fix/viewer-layout`.

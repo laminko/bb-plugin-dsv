@@ -126,3 +126,18 @@ Chunk size: one plan chunk. 3 chunks. Stop if a chunk is red. Chunk 2 stops for 
 - [x] 2. `README.md` (Viewer bullet, image alt text and image text) and `screenshot.png` → S2 pass · P1 0 of 75 · P2 0 · P3 0 of 3,430 · P5 0 metadata chunks · P4 approved by the user
       2,228 × 1,544 px, 605,288 bytes · a clip of the dsv plugin only (5 px of bb's panel handle cut) · the pane on the right, Record tab, row 1, 20 of 20 fields boxed, label column 76 px · script `thr_c7bw37g5fy/readme-shot2.mjs`
 - [x] 3. `CHANGELOG.md` 0.9.2, `TASKS.md`, "Result v1.7.2" in the plan → A1 53 of 53 · T1 `tsc` exit 0 · no merge, no push
+
+## v1.7.3 (0.9.3)
+
+Plan: "Proposal v1.7.3" (approved `go, here`, 2026-09-16, defaults 1–4). Thread: thr_c7bw37g5fy. Branch `feat/viewer-resize` from `main` = `907d094`.
+Chunk size: one plan chunk. 3 chunks. Stop if a chunk is red. Chunk 2 stops for the user's review of the screenshot.
+
+- [x] 0. Record form labels look like the column headers (user's request with an image of a column header), commit `afa1b39` → T1 `tsc` exit 0 · A1 53 of 53 · RF1–RF5 5 of 5
+      label name 13 px, weight 600, and badge 10 px, weight 600, radius 4 px, as in the header · badge background muted, because the pane is white · label column 91 of 144 px
+- [x] 1. `app.tsx` pane drag handle and saved size, `package.json` 0.9.3 → T1 `tsc` exit 0 · A1 53 of 53 · `dsv@0.9.3 running` · `rz-check.mjs` 6 of 6 · `rf-check.mjs` 5 of 5 · `l-check.mjs` 5 of 5 · `v-check.mjs` 18 of 18 on each side
+      RZ1 360 → 480 px, grid −120 px (799 px area) · RZ2 min 200 px, max 599 px = area − 200 · RZ3 2 of 2 reloads kept · RZ4 below +100 px (288.8 → 389), grid −100.2 px · RZ5 below 289 of 289 px, right 360 px, saved `{}` · RZ6 1 handle per side, `col-resize` / `row-resize`, 6 px, a title
+      L1 right 360 px, grid 199 of 559 px · P2 17 ms right and below · A2 338–588 ms (13 loads) · A3 75 ms worst · A4 34
+      Run 1 red (RZ1, RZ5, L1, L3): the 200 px grid limit cut the default 360 px pane to 359 px in a 559 px area. The user chose "limit drags only". RZ1–RZ3 run in a 1,920 px viewport (799 px area)
+- [x] 2. `README.md` (Viewer bullet: drag and double-click; limits: side and size kept) and `screenshot.png` → S2 pass · P1 0 of 85 · P2 0 · P3 0 of 3,850 · P5 0 metadata chunks · P4 approved by the user
+      2,228 × 1,744 px (was 1,544 px high, so all 20 form lines now fit), 663,029 bytes · a clip of the dsv plugin only (5 px of bb's panel handle cut) · header-style labels · script `thr_c7bw37g5fy/readme-shot2.mjs` with `HEIGHT=920`
+- [x] 3. `CHANGELOG.md` 0.9.3, `TASKS.md`, "Result v1.7.3" in the plan → A1 53 of 53 · T1 `tsc` exit 0 · no merge, no push
