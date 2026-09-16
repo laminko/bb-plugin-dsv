@@ -39,6 +39,8 @@ const EDGE_PAD = 16;
 const MAC = /Mac|iPhone|iPad/.test(navigator.userAgent);
 const COPY_KEY = "dsv.copyDefault"; // localStorage: what ⌘C copies, "data" or "names"
 const SIDE_KEY = "dsv.viewerSide"; // localStorage: where the Viewer pane sits, "right" or "below"
+const SIZE_KEY = "dsv.viewerSize"; // localStorage: the Viewer pane size in px for each side, {"right": 480, "below": 300}
+const MIN_PANE = 200; // a drag leaves the Viewer pane and the grid at least this many px
 const ARROWS: Record<string, [number, number] | undefined> = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
 // ⌘F / Ctrl+F and ⌘G / Ctrl+G: the box each key focuses. ⌘S / Ctrl+S: the button it clicks.
 const MOD_KEYS: Record<string, string | undefined> = { f: 'input[type="search"]', g: 'input[aria-label="Go to row"]', s: "button[data-dsv-save]" };
@@ -335,6 +337,19 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
   const setSide = (s: Side) => {
     localStorage.setItem(SIDE_KEY, s);
     setSideState(s);
+  };
+  const [sizes, setSizesState] = useState<Partial<Record<Side, number>>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem(SIZE_KEY) ?? "{}") ?? {};
+    } catch {
+      return {};
+    }
+  });
+  // The pane size on the current side. No value gives the default size back.
+  const setSize = (px?: number) => {
+    const next = { ...sizes, [side]: px };
+    localStorage.setItem(SIZE_KEY, JSON.stringify(next));
+    setSizesState(next);
   };
   const hits = useMemo(() => {
     const found = query(table, search, scope, filters);
@@ -785,7 +800,7 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
           </div>
         </div>
         {viewer.open && (
-          <Viewer table={table} hits={hits} cols={cols} sel={sel} tab={viewer.tab} setTab={(tab) => setViewer({ open: true, tab })} pick={pick} side={side} setSide={setSide} />
+          <Viewer table={table} hits={hits} cols={cols} sel={sel} tab={viewer.tab} setTab={(tab) => setViewer({ open: true, tab })} pick={pick} side={side} setSide={setSide} size={sizes[side]} setSize={setSize} />
         )}
       </div>
       <div className="border-t border-border px-2 py-1 text-xs text-muted-foreground">
@@ -811,7 +826,7 @@ const BADGE = "rounded bg-muted px-1 text-[10px] font-normal leading-4 text-mute
  * Record: the active row, one line per shown column, and buttons to the first, previous, next, and last
  * row of the view. `pick` makes a cell active.
  */
-function Viewer({ table, hits, cols, sel, tab, setTab, pick, side, setSide }: {
+function Viewer({ table, hits, cols, sel, tab, setTab, pick, side, setSide, size, setSize }: {
   table: Table;
   hits: number[];
   cols: number[];
@@ -821,7 +836,28 @@ function Viewer({ table, hits, cols, sel, tab, setTab, pick, side, setSide }: {
   pick: (r: number, c: number) => void;
   side: Side;
   setSide: (s: Side) => void;
+  size?: number;
+  setSize: (px?: number) => void;
 }) {
+  const right = side === "right";
+  // Drag the edge the pane shares with the grid. Pointer capture keeps the drag when the pointer leaves the handle.
+  const resize = (e: ReactPointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const el = e.currentTarget;
+    const pane = el.parentElement!;
+    const area = pane.parentElement!.getBoundingClientRect();
+    const start = right ? e.clientX : e.clientY;
+    const from = right ? pane.offsetWidth : pane.offsetHeight;
+    const max = (right ? area.width : area.height) - MIN_PANE;
+    el.setPointerCapture(e.pointerId);
+    const move = (m: PointerEvent) => setSize(Math.max(MIN_PANE, Math.min(max, Math.round(from + start - (right ? m.clientX : m.clientY)))));
+    const end = () => {
+      el.removeEventListener("pointermove", move);
+      el.removeEventListener("lostpointercapture", end);
+    };
+    el.addEventListener("pointermove", move);
+    el.addEventListener("lostpointercapture", end);
+  };
   const n = hits.length;
   const at = sel?.ar ?? -1;
   const ac = sel?.ac ?? -1;
@@ -836,7 +872,20 @@ function Viewer({ table, hits, cols, sel, tab, setTab, pick, side, setSide }: {
     ["last", n - 1, at === n - 1],
   ] as const;
   return (
-    <aside aria-label="Viewer" className={`flex shrink-0 flex-col border-border ${side === "right" ? "w-[360px] border-l" : "h-2/5 border-t"}`}>
+    <aside
+      aria-label="Viewer"
+      className={`relative flex shrink-0 flex-col border-border ${right ? "w-[360px] border-l" : "h-2/5 border-t"}`}
+      // A saved size is at most the area less MIN_PANE, so a narrower window still leaves room for the grid.
+      // The default size has no such limit: it does not change by itself.
+      style={size === undefined ? undefined : right ? { width: size, maxWidth: `calc(100% - ${MIN_PANE}px)` } : { height: size, maxHeight: `calc(100% - ${MIN_PANE}px)` }}
+    >
+      <div
+        data-viewer-resize=""
+        title="Drag to resize the pane. Double-click for the default size."
+        className={`absolute z-10 hover:bg-primary ${right ? "inset-y-0 left-0 w-1.5 cursor-col-resize" : "inset-x-0 top-0 h-1.5 cursor-row-resize"}`}
+        onPointerDown={resize}
+        onDoubleClick={() => setSize()}
+      />
       <div className="flex items-center gap-1 border-b border-border px-2 py-1.5">
         <div role="tablist" className="flex gap-1">
           {TABS.map(([t, label]) => (
