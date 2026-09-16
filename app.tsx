@@ -46,9 +46,14 @@ const ARROWS: Record<string, [number, number] | undefined> = { ArrowUp: [-1, 0],
 const MOD_KEYS: Record<string, string | undefined> = { f: 'input[type="search"]', g: 'input[aria-label="Go to row"]', s: "button[data-dsv-save]" };
 
 // Icons "clipboard", "paintbrush", "filter", "sort", "floppy-disk", "table-cells", "code", "table-columns", "backward-step",
-// "angle-left", "angle-right", and "forward-step": Font Awesome Free 6.7.2 by Fonticons, Inc.
+// "angle-left", "angle-right", "forward-step", and "xmark": Font Awesome Free 6.7.2 by Fonticons, Inc.
 // License CC BY 4.0, https://fontawesome.com/license/free
 const ICONS = {
+  close: {
+    name: "Close the Viewer",
+    box: "0 0 384 512",
+    d: "M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z",
+  },
   clipboard: {
     name: "Copy",
     box: "0 0 384 512",
@@ -800,7 +805,7 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
           </div>
         </div>
         {viewer.open && (
-          <Viewer table={table} hits={hits} cols={cols} sel={sel} tab={viewer.tab} setTab={(tab) => setViewer({ open: true, tab })} pick={pick} side={side} setSide={setSide} size={sizes[side]} setSize={setSize} />
+          <Viewer table={table} hits={hits} cols={cols} sel={sel} tab={viewer.tab} setTab={(tab) => setViewer({ open: true, tab })} pick={pick} side={side} setSide={setSide} size={sizes[side]} setSize={setSize} close={() => setViewer({ ...viewer, open: false })} />
         )}
       </div>
       <div className="border-t border-border px-2 py-1 text-xs text-muted-foreground">
@@ -826,7 +831,7 @@ const BADGE = "rounded bg-muted px-1 text-[10px] font-normal leading-4 text-mute
  * Record: the active row, one line per shown column, and buttons to the first, previous, next, and last
  * row of the view. `pick` makes a cell active.
  */
-function Viewer({ table, hits, cols, sel, tab, setTab, pick, side, setSide, size, setSize }: {
+function Viewer({ table, hits, cols, sel, tab, setTab, pick, side, setSide, size, setSize, close }: {
   table: Table;
   hits: number[];
   cols: number[];
@@ -838,6 +843,7 @@ function Viewer({ table, hits, cols, sel, tab, setTab, pick, side, setSide, size
   setSide: (s: Side) => void;
   size?: number;
   setSize: (px?: number) => void;
+  close: () => void;
 }) {
   const right = side === "right";
   // Drag the edge the pane shares with the grid. Pointer capture keeps the drag when the pointer leaves the handle.
@@ -910,6 +916,9 @@ function Viewer({ table, hits, cols, sel, tab, setTab, pick, side, setSide, size
         >
           <Icon name="viewer" className={`h-3.5 w-3.5 ${side === "right" ? "rotate-90" : ""}`} />
         </button>
+        <button type="button" aria-label={ICONS.close.name} title={ICONS.close.name} className={BUTTON} onClick={close}>
+          <Icon name="close" />
+        </button>
       </div>
       <div className="min-h-0 flex-1 overflow-auto p-2">
         {tab === "cell" ? (
@@ -957,7 +966,8 @@ function Viewer({ table, hits, cols, sel, tab, setTab, pick, side, setSide, size
                       <span className="shrink-0 rounded bg-muted px-1 text-[10px] font-semibold leading-4 text-muted-foreground">{table.dtypes[k]}</span>
                     </span>
                     <span
-                      className={`line-clamp-6 whitespace-pre-wrap break-words rounded-md border bg-muted/40 px-2 py-1 ${ci === ac ? "border-primary" : "border-border"} ${family(table.dtypes[k]) === "number" ? "text-right tabular-nums" : ""}`}
+                      // An empty field gets a space after it, so it keeps one line of height and a baseline for its label.
+                      className={`line-clamp-6 whitespace-pre-wrap break-words rounded-md border bg-muted/40 px-2 py-1 empty:after:content-['_'] ${ci === ac ? "border-primary" : "border-border"} ${family(table.dtypes[k]) === "number" ? "text-right tabular-nums" : ""}`}
                     >
                       {row[k] ?? ""}
                     </span>
