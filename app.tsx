@@ -234,7 +234,7 @@ function DsvOpener({ path, source }: PluginFileOpenerProps) {
         } else if (el instanceof HTMLButtonElement && !el.disabled) el.click();
       }}
     >
-      <div className="flex flex-wrap items-center gap-2 border-b border-border px-2 py-1.5">
+      <div className="flex flex-wrap items-center gap-2 border-b-2 border-border px-2 py-1.5">
         {(["grid", "code"] as const).map((v) => (
           <button
             key={v}
@@ -601,7 +601,7 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex flex-wrap items-center gap-2 border-b border-border px-2 py-1.5">
+      <div className="flex flex-wrap items-center gap-2 border-b-2 border-border px-2 py-1.5">
         <input
           type="search"
           placeholder={`Search (${MAC ? "⌘F" : "Ctrl+F"})`}
@@ -808,7 +808,7 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
           <Viewer table={table} hits={hits} cols={cols} sel={sel} tab={viewer.tab} setTab={(tab) => setViewer({ open: true, tab })} pick={pick} side={side} setSide={setSide} size={sizes[side]} setSize={setSize} close={() => setViewer({ ...viewer, open: false })} />
         )}
       </div>
-      <div className="border-t border-border px-2 py-1 text-xs text-muted-foreground">
+      <div className="border-t-2 border-border px-2 py-1 text-xs text-muted-foreground">
         {hits.length.toLocaleString()} of {table.rows.length.toLocaleString()} rows · {cols.length} of {table.names.length}{" "}
         columns{sorts.length > 0 && ` · sorted by ${sorts.map((k) => `${table.names[k.col]} ${arrow(k.dir)}`).join(", ")}`} · {note}
         {sel && ` · ${(sBottom - sTop + 1).toLocaleString()} × ${sRight - sLeft + 1} selected`}
@@ -880,7 +880,7 @@ function Viewer({ table, hits, cols, sel, tab, setTab, pick, side, setSide, size
   return (
     <aside
       aria-label="Viewer"
-      className={`relative flex shrink-0 flex-col border-border ${right ? "w-[360px] border-l" : "h-2/5 border-t"}`}
+      className={`relative flex shrink-0 flex-col border-border ${right ? "w-[360px] border-l-4" : "h-2/5 border-t-4"}`}
       // A saved size is at most the area less MIN_PANE, so a narrower window still leaves room for the grid.
       // The default size has no such limit: it does not change by itself.
       style={size === undefined ? undefined : right ? { width: size, maxWidth: `calc(100% - ${MIN_PANE}px)` } : { height: size, maxHeight: `calc(100% - ${MIN_PANE}px)` }}
@@ -888,11 +888,11 @@ function Viewer({ table, hits, cols, sel, tab, setTab, pick, side, setSide, size
       <div
         data-viewer-resize=""
         title="Drag to resize the pane. Double-click for the default size."
-        className={`absolute z-10 hover:bg-primary ${right ? "inset-y-0 left-0 w-1.5 cursor-col-resize" : "inset-x-0 top-0 h-1.5 cursor-row-resize"}`}
+        className={`absolute z-10 hover:bg-primary ${right ? "inset-y-0 -left-1 w-1.5 cursor-col-resize" : "inset-x-0 -top-1 h-1.5 cursor-row-resize"}`}
         onPointerDown={resize}
         onDoubleClick={() => setSize()}
       />
-      <div className="flex items-center gap-1 border-b border-border px-2 py-1.5">
+      <div className="flex items-center gap-1 border-b-2 border-border px-2 py-1.5">
         <div role="tablist" className="flex gap-1">
           {TABS.map(([t, label]) => (
             <button
@@ -1002,7 +1002,7 @@ function FilterRow({ table, filter: f, onChange, onRemove }: {
     />
   );
   return (
-    <div className="flex flex-wrap items-center gap-2 border-b border-border px-2 py-1">
+    <div className="flex flex-wrap items-center gap-2 border-b-2 border-border px-2 py-1">
       <select aria-label="Column" className={FIELD} value={f.col} onChange={(e) => onChange(blank(table, Number(e.target.value)))}>
         {table.names.map((name, c) => <option key={c} value={c}>{name}</option>)}
       </select>
