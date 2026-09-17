@@ -151,3 +151,14 @@ Chunk size: one change. 2 commits.
       CP1 0 of 20 line buttons · CP2 2 of 2 selections on the right, 1 of 1 below · CP3 3 of 3 native copies, 0 grid writes · control: ⌘C on a grid cell, 1 grid write · P2 15 ms · A2 190–526 ms (11 loads) · A3 83 ms · A4 34
       Run 1 of `cp-check.mjs` stopped on its first line (`localStorage` on `about:blank`). Script fixed, app not changed; run 2: 6 of 6
 - [x] 2. `CHANGELOG.md` 0.9.4, `TASKS.md` → no merge, no push
+
+## 0.9.5
+
+User's request (2026-09-17), with an image of thin empty fields: "should be same height for empty value" and "add close button beside toggle h/v layout in record view". Thread: thr_c7bw37g5fy. Branch `fix/record-empty-close` from `main` = `e7ffa47`.
+Chunk size: one change. 3 commits. The screenshot waits for the user's review.
+
+- [x] 1. `app.tsx` empty fields (`empty:after:content-['_']`) and the close button (`xmark`), `package.json` 0.9.5 → T1 `tsc` exit 0 · A1 53 of 53 · `dsv@0.9.5 running` · `eh-check.mjs` 5 of 5 · RF 5 of 5 · L 5 of 5 · CP 6 of 6 · RZ 6 of 6 · V/R 18 of 18 on each side
+      EH1 4 of 4 empty fields at 28.6 px with label offset 23.6 px, as a filled field, on both sides · EH2 4 of 4 texts `""` · CB 2 of 2 · P2 15 / 18 ms · A2 198–581 ms (14 loads) · A3 61 ms · A4 34
+      The sample has 0 empty cells, so EH uses `thr_8twbr93gzu/dsv-empty.csv`; its tab was added with `bb thread tabs set` and removed after. EH run 1 loaded `dsv-thai-874.csv` (a script defect); run 2: 5 of 5
+- [x] 2. `README.md` (close button) and `screenshot.png` → S2 pass · P1 0 of 86 · P2 0 · P3 0 of 3,850 · P5 0 · P4 approved by the user
+- [x] 3. `CHANGELOG.md` 0.9.5, `TASKS.md` → A1 53 of 53 · T1 `tsc` exit 0 · no merge, no push

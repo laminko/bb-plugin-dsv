@@ -1,5 +1,55 @@
 # CHANGELOG — bb-plugin-dsv
 
+## 0.9.5 — 2026-09-17
+
+The user's request, with an image of empty fields: "should be same height for empty value" and "add close button beside toggle h/v layout in record view". Built in thread thr_c7bw37g5fy. Branch `fix/record-empty-close` from `main` = `e7ffa47`.
+
+### Fixed
+
+- An empty Record field has the height of a one-line field, and its label lines up as on the other lines. Before, an empty field was a thin box, and its label sat lower.
+- The field gets a space from CSS `::after` when it is empty. The field text stays empty, so a copy gets no hidden character.
+
+### Added
+
+- A close button in the Viewer header, to the right of the layout switch. It shows the Font Awesome Free `xmark` icon, and its title and label are "Close the Viewer".
+- The close button closes the pane, like the Viewer button. The Viewer button opens it again on the same tab and side.
+
+### Changed
+
+- `screenshot.png` shows the close button. It is a clip of the dsv plugin only, 2,228 × 1,744 px.
+- `README.md`: the Viewer bullet names the close button.
+
+### Verified
+
+| # | Check | Target | Measured |
+|---|---|---|---|
+| A1 | tests | 53 of 53 | 53 of 53 |
+| T1 | `tsc` | exit 0 | exit 0 |
+| EH1 | row 2 of `dsv-empty.csv`, pane on the right: empty field height and label offset = those of a one-line field, ± 0.5 px | 4 of 4 | 4 of 4: 28.6 px and 23.6 px, the same as the filled field |
+| EH1 | the same, pane below | 4 of 4 | 4 of 4 |
+| EH2 | the text of the empty fields | `""`, 4 of 4 | 4 of 4; `::after` content `" "` |
+| CB | pane right and pane below: 1 button next to the switch, 1 icon, label and title; a real click closes the pane; the Viewer button opens it on the same tab and side | 2 of 2 | 2 of 2 |
+| RF1–RF5 · L1–L5 | form and switch checks | 5 of 5 · 5 of 5 | 5 of 5 · 5 of 5 |
+| CP1–CP3 · RZ1–RZ6 | copy and resize checks | 6 of 6 · 6 of 6 | 6 of 6 · 6 of 6 |
+| V1–V4, R1–R8, I5 | pane on the right / pane below | 18 of 18 each | 18 of 18 / 18 of 18 |
+| P1 | pane open, 100,000 rows | A3 < 300 ms; A4 < 60 | right: 40 ms, 34 rows; below: 38 ms, 24 rows |
+| P2 | Last → paint | < 300 ms | right: 15 ms; below: 18 ms |
+| A2 / A3 / A4 | all runs | < 2 s / < 300 ms / < 60 | 198–581 ms (14 loads) / 61 ms / 34 |
+| S2 | the screenshot | form; pane on the right; row 1 | pane 360 px; `Record 1 of 100,000`; 20 of 20 fields boxed; 4 record buttons |
+| P1–P3 (image) | the dsv plugin only | 0 / 0 / 0 | 0 of 86 outside texts / 0 thread IDs / 0 of 3,850 points |
+| P5 | PNG metadata | 0 chunks | 0 (IHDR, 163 IDAT, IEND) |
+| P4 | the user reviews the image | approved | approved |
+
+How measured: headless Chrome (port 9333) on bb's web UI, real mouse input through CDP. Scripts in `thr_c7bw37g5fy`: `eh-check.mjs` (new), `rf-check.mjs`, `l-check.mjs`, `cp-check.mjs`, `rz-check.mjs`, `v-check.mjs`, `readme-shot2.mjs`.
+The sample has 0 of 2,000,000 empty cells, so EH uses a new file `thr_8twbr93gzu/dsv-empty.csv` (3 rows × 5 columns; row 2 has 4 empty values). Its tab was added to that thread with `bb thread tabs set` for the run, and the 3 original tabs were restored after it.
+The first EH run loaded `dsv-thai-874.csv`, which also has 3 rows. The script now waits for "3 of 3 rows · 5 of 5 columns". The app did not change before the second run.
+
+### Not tested
+
+- The bb desktop app, and the dark theme.
+- A value that is only spaces. It is not `:empty`, so it keeps its own height.
+- Keyboard use of the close button.
+
 ## 0.9.4 — 2026-09-17
 
 The user's request: "remove click on each field on record view because i cannot make any copy from there". Built in thread thr_c7bw37g5fy. Branch `fix/record-select` from `main` = `6bf2eb1`.
