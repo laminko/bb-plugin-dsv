@@ -966,8 +966,8 @@ function Viewer({ table, hits, cols, sel, tab, setTab, pick, side, setSide, size
                       <span className="shrink-0 rounded bg-muted px-1 text-[10px] font-semibold leading-4 text-muted-foreground">{table.dtypes[k]}</span>
                     </span>
                     <span
-                      // An empty field gets a space after it, so it keeps one line of height and a baseline for its label.
-                      className={`line-clamp-6 whitespace-pre-wrap break-words rounded-md border bg-muted/40 px-2 py-1 empty:after:content-['_'] ${ci === ac ? "border-primary" : "border-border"} ${family(table.dtypes[k]) === "number" ? "text-right tabular-nums" : ""}`}
+                      // A long value scrolls inside the field after 6 lines. An empty field gets a space after it, so it keeps one line of height and a baseline for its label.
+                      className={`max-h-[calc(6lh_+_0.5rem_+_2px)] overflow-y-auto whitespace-pre-wrap break-words rounded-md border bg-muted/40 px-2 py-1 empty:after:content-['_'] ${ci === ac ? "border-primary" : "border-border"} ${family(table.dtypes[k]) === "number" ? "text-right tabular-nums" : ""}`}
                     >
                       {row[k] ?? ""}
                     </span>
