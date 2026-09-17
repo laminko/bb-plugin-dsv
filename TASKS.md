@@ -162,3 +162,14 @@ Chunk size: one change. 3 commits. The screenshot waits for the user's review.
       The sample has 0 empty cells, so EH uses `thr_8twbr93gzu/dsv-empty.csv`; its tab was added with `bb thread tabs set` and removed after. EH run 1 loaded `dsv-thai-874.csv` (a script defect); run 2: 5 of 5
 - [x] 2. `README.md` (close button) and `screenshot.png` → S2 pass · P1 0 of 86 · P2 0 · P3 0 of 3,850 · P5 0 · P4 approved by the user
 - [x] 3. `CHANGELOG.md` 0.9.5, `TASKS.md` → A1 53 of 53 · T1 `tsc` exit 0 · no merge, no push
+
+## 0.9.6
+
+User's requests (2026-09-17): thicker separator, splitter, and resizer lines, because the toolbar, the grid, and the Record pane were hard to tell apart; and long Record values that scroll instead of "…". Thread: thr_c7bw37g5fy. Branch `feat/borders` from `fix/record-empty-close` (0.9.5, not merged).
+Chunk size: one change each. 4 commits. The screenshot waited for the user's review.
+
+- [x] 1. `app.tsx` 2 px separators, 4 px pane splitter with the handle over it, `package.json` 0.9.6, commit `00b4f23` → T1 exit 0 · A1 53 of 53 · BD1 3 of 3 separators and the header at 2 px · BD2 4 px on both sides, 2 of 2 handle hits, drag 360 → 320 px, reset 360 px · L 5 of 5 · RZ 6 of 6 · RF 5 of 5 · CP 6 of 6 · V/R 18 of 18 on each side
+      Script defects on first runs (app not changed): a name clash in `bd-check.mjs`; a grow drag in a 559 px area; L1/L2 read `clientWidth`, and the test browser's grid scrollbar now takes 11 px (the 0.9.5 build measures the same 11 px)
+- [x] 2. `app.tsx` Record fields scroll after 6 lines (`max-h-[calc(6lh_+_0.5rem_+_2px)] overflow-y-auto`), commit `538debd` → T1 exit 0 · A1 53 of 53 · SC1 121.4 px = 6 lines, content 379 px · SC2 689 of 689 characters · SC3 wheel scrollTop 0 → 60 px · EH 4 of 4 on each side · close 2 of 2 · RF 5 of 5 (label offset 1.6 px before and after) · CP 6 of 6 · V/R 18 of 18 on each side
+- [x] 3. `README.md` (long values scroll) and `screenshot.png` → S2 pass · P1 0 of 85 · P2 0 · P3 0 of 3,850 · P5 0 · P4 approved by the user
+- [x] 4. `CHANGELOG.md` 0.9.6, `TASKS.md` → A1 53 of 53 · T1 `tsc` exit 0 · no merge, no push

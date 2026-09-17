@@ -1,5 +1,50 @@
 # CHANGELOG — bb-plugin-dsv
 
+## 0.9.6 — 2026-09-17
+
+The user's requests: "use separator border and splitter border, resizer border a bit think, right now cannot distinguish between toolbar, grid view, and record panel", and "make it vertically scrollable for textarea instead of '...'", with an image of a cut value. Built in thread thr_c7bw37g5fy. Branch `feat/borders` from `fix/record-empty-close` (0.9.5, not merged).
+
+### Changed
+
+- The toolbar rows, the filter rows, the status bar, and the Viewer header have 2 px separators (were 1 px). The grid row lines stay 1 px.
+- The Viewer pane edge next to the grid is 4 px (was 1 px). The resize handle sits over it, so a press on the line starts a resize.
+- A long Record value scrolls inside its field. The field is at most 6 lines high. Before, the value was cut at 6 lines with "…".
+- The line colour is still bb's `border` colour. Only the thickness changed.
+- `README.md`: the Viewer bullet says that a long value scrolls inside its box.
+- `screenshot.png` shows the thicker lines. It is a clip of the dsv plugin only, 2,228 × 1,744 px.
+
+### Verified
+
+| # | Check | Target | Measured |
+|---|---|---|---|
+| A1 | tests | 53 of 53 | 53 of 53 |
+| T1 | `tsc` | exit 0 | exit 0 |
+| BD1 | full-width separators outside the grid, and the Viewer header | 2 px | 3 of 3 and the header at 2 px; grid row lines 1 px |
+| BD2 | the pane splitter, pane on the right and below | 4 px; a press hits the handle; a drag and a reset work | 4 px and 4 px; 2 of 2 hits; 360 → 320 px; reset 360 px |
+| SC1 | a 689-character value, pane on the right | at most 6 lines high; it scrolls | 121.4 px = 6 lines; content 379 px; `overflow-y: auto`; no line clamp |
+| SC2 | the text in that field | the whole value, no "…" | 689 of 689 characters |
+| SC3 | a real mouse wheel over that field | the field scrolls | scrollTop 0 → 60 px |
+| EH1 / EH2 / close | the 0.9.5 checks | 4 of 4 on each side / 4 of 4 / 2 of 2 | 4 of 4 / 4 of 4 / 2 of 2 |
+| Labels | label offset after the scroll change | unchanged | 1.6 px before and after |
+| L1–L5 · RZ1–RZ6 | switch and resize checks | 5 of 5 · 6 of 6 | 5 of 5 · 6 of 6 |
+| RF1–RF5 · CP1–CP3 | form and copy checks | 5 of 5 · 6 of 6 | 5 of 5 · 6 of 6 |
+| V1–V4, R1–R8, I5 | pane on the right / pane below | 18 of 18 each | 18 of 18 / 18 of 18 |
+| P2 / A2 / A3 / A4 | all runs | < 300 ms / < 2 s / < 300 ms / < 60 | 15–20 ms / 185–727 ms / 82 ms / 33 |
+| S2 | the screenshot | form; pane on the right; row 1 | pane 360 px; `Record 1 of 100,000`; 20 of 20 fields boxed |
+| P1–P3 (image) | the dsv plugin only | 0 / 0 / 0 | 0 of 85 outside texts / 0 thread IDs / 0 of 3,850 points |
+| P5 | PNG metadata | 0 chunks | 0 |
+| P4 | the user reviews the image | approved | approved |
+
+How measured: headless Chrome (port 9333) on bb's web UI, real mouse input through CDP. Scripts in `thr_c7bw37g5fy`: `bd-check.mjs` (new), `eh-check.mjs` (SC1–SC3 added), `l-check.mjs`, `rz-check.mjs`, `rf-check.mjs`, `cp-check.mjs`, `v-check.mjs`, `readme-shot2.mjs`. The L and RZ checks ran on the border change; the other checks ran on both changes.
+The grid scrollbars now take 11 px in the test browser. The 0.9.5 build measures the same 11 px, so the code did not cause it. `l-check.mjs` now reads the grid width with `offsetWidth`.
+3 first runs failed on script defects, not the app: a name clash in `bd-check.mjs`, a drag that tried to grow the pane in a 559 px area, and the L width read without the scrollbar.
+
+### Not tested
+
+- The bb desktop app, and the dark theme.
+- Keyboard scrolling inside a field. A field does not take focus with Tab.
+- A darker line colour. It is not built.
+
 ## 0.9.5 — 2026-09-17
 
 The user's request, with an image of empty fields: "should be same height for empty value" and "add close button beside toggle h/v layout in record view". Built in thread thr_c7bw37g5fy. Branch `fix/record-empty-close` from `main` = `e7ffa47`.
