@@ -600,7 +600,18 @@ function Grid({ table, note, header, saveName }: { table: Table; note: string; h
   };
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div
+      className="flex min-h-0 flex-1 flex-col"
+      // ⌘C / Ctrl+C with the focus outside the grid (a Viewer tab or button, a toolbar button) still copies the grid
+      // selection. Text boxes and selected text keep the browser's own copy. The grid box handles its own keys first.
+      onKeyDown={(e) => {
+        const mod = (e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey;
+        if (!sel || !mod || e.key.toLowerCase() !== "c") return;
+        if ((e.target as Element).closest("input, textarea, select, [contenteditable]") || !getSelection()?.isCollapsed) return;
+        e.preventDefault();
+        copy(copyKey === "names");
+      }}
+    >
       <div className="flex flex-wrap items-center gap-2 border-b-2 border-border px-2 py-1.5">
         <input
           type="search"
