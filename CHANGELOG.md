@@ -1,5 +1,39 @@
 # CHANGELOG — bb-plugin-dsv
 
+## 0.9.7 — 2026-09-19
+
+The user's report: "command + C does not seem to be working, test and verify it". Built in thread thr_c7bw37g5fy. Branch `fix/copy-focus` from `main` = `bd9fa95` (0.9.6, not pushed).
+
+### Found
+
+- ⌘C / Ctrl+C copied the grid selection only while the grid box had the focus. After a click on the Record tab, the Cell tab, a record button, the layout switch, or the Viewer button, ⌘C copied nothing. The status bar stayed at "1 × 1 selected", with no message. Measured: 1 of 6 cases copied.
+
+### Fixed
+
+- The Grid root handles ⌘C / Ctrl+C too. With cells selected, ⌘C copies them from anywhere in the plugin, and the status bar says "copied …".
+- A text box (Search, Go to row, a filter) and selected text keep the browser's own copy. So a value selected on the Record or Cell tab still copies as text.
+- `README.md`: ⌘C is in the list of keys that work anywhere in the plugin.
+
+### Verified
+
+| # | Check | Target | Measured |
+|---|---|---|---|
+| A1 | tests | 53 of 53 | 53 of 53 |
+| T1 | `tsc` | exit 0 | exit 0 |
+| Focus | a real click on a cell, one real action, a real ⌘C: no action, Record tab, Next record, Cell tab, layout switch 2 times, Viewer button 2 times | 6 of 6 grid copies | 6 of 6 (was 1 of 6); status "copied 1 × 1" |
+| Control | the same after a click in the Search box | the browser's copy; no grid copy | 0 grid copies; 1 browser copy event |
+| CP1–CP3 | text copy on the Record tab, pane right and below | 6 of 6; 0 grid writes | 6 of 6; 0 grid writes |
+| V1–V4, R1–R8, I5 | pane on the right / pane below | 18 of 18 each | 18 of 18 / 18 of 18 |
+| P2 / A2 / A3 / A4 | V runs | < 300 ms / < 2 s / < 300 ms / < 60 | 18 ms / 185–687 ms (6 loads) / 67 ms / 34 |
+
+How measured: headless Chrome (port 9333) on bb's web UI, real mouse and key input through CDP. ⌘C is sent as Meta+C with the `copy` editing command, as Chrome on a Mac sends it. Scripts in `thr_c7bw37g5fy`: `ck2-check.mjs` (new), `cp-check.mjs`, `v-check.mjs`.
+`ck-check.mjs` tried to read the clipboard back with `navigator.clipboard.readText()`. Headless Chrome denied every read ("Read permission denied"), also after `Browser.grantPermissions`. So the evidence that the browser took the text is the resolved write: the status bar says "copied 1 × 1".
+
+### Not tested
+
+- The system clipboard (`pbpaste`). Headless Chrome has its own clipboard. A test in a visible Chrome window would overwrite your clipboard.
+- The bb desktop app.
+
 ## 0.9.6 — 2026-09-17
 
 The user's requests: "use separator border and splitter border, resizer border a bit think, right now cannot distinguish between toolbar, grid view, and record panel", and "make it vertically scrollable for textarea instead of '...'", with an image of a cut value. Built in thread thr_c7bw37g5fy. Branch `feat/borders` from `fix/record-empty-close` (0.9.5, not merged).

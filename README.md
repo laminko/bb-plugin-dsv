@@ -26,7 +26,7 @@ The image shows a synthetic sample file: 100,000 rows × 20 columns, 15 MB. The 
 
 ## Keys
 
-In Grid view. ⌘F, ⌘G, and ⌘S work anywhere in the plugin. The other keys work after you click a cell.
+In Grid view. ⌘F, ⌘G, ⌘S, and ⌘C work anywhere in the plugin. ⌘C copies selected text first, if there is any, and a text box keeps its own copy. The other keys work after you click a cell.
 
 | Key | Action |
 |---|---|

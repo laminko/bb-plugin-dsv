@@ -173,3 +173,13 @@ Chunk size: one change each. 4 commits. The screenshot waited for the user's rev
 - [x] 2. `app.tsx` Record fields scroll after 6 lines (`max-h-[calc(6lh_+_0.5rem_+_2px)] overflow-y-auto`), commit `538debd` → T1 exit 0 · A1 53 of 53 · SC1 121.4 px = 6 lines, content 379 px · SC2 689 of 689 characters · SC3 wheel scrollTop 0 → 60 px · EH 4 of 4 on each side · close 2 of 2 · RF 5 of 5 (label offset 1.6 px before and after) · CP 6 of 6 · V/R 18 of 18 on each side
 - [x] 3. `README.md` (long values scroll) and `screenshot.png` → S2 pass · P1 0 of 85 · P2 0 · P3 0 of 3,850 · P5 0 · P4 approved by the user
 - [x] 4. `CHANGELOG.md` 0.9.6, `TASKS.md` → A1 53 of 53 · T1 `tsc` exit 0 · no merge, no push
+
+## 0.9.7
+
+User's report (2026-09-19): "command + C does not seem to be working, test and verify it". Thread: thr_c7bw37g5fy. Branch `fix/copy-focus` from `main` = `bd9fa95` (0.9.6, not pushed).
+Chunk size: one fix. 2 commits.
+
+- [x] 1. Reproduce → `ck2-check.mjs`: ⌘C copied the grid selection in 1 of 6 cases; after a click on a Viewer tab, a record button, the layout switch, or the Viewer button, it copied nothing and showed no message
+      `ck-check.mjs` could not read the clipboard back: headless Chrome denied every `readText()`, also after `Browser.grantPermissions`
+- [x] 2. `app.tsx` the Grid root handles ⌘C too (not in a text box, not with text selected), `package.json` 0.9.7, commit `efcb3ec` → T1 exit 0 · A1 53 of 53 · `dsv@0.9.7 running` · focus cases 6 of 6 · Search box control: 0 grid copies, 1 browser copy · CP 6 of 6, 0 grid writes · V/R 18 of 18 on each side · P2 18 ms · A2 185–687 ms · A3 67 ms · A4 34
+- [x] 3. `README.md` (⌘C works anywhere in the plugin), `CHANGELOG.md` 0.9.7, `TASKS.md` → no merge, no push
